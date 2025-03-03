@@ -3,4 +3,9 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="background_color">#3772E7</color>
+    <color name="ic_launcher_foreground_color">#FF5722</color>
+    <color name="main_menu_icon_color">#1A1B22</color>
+    <color name="off_icon_color_1">#E6E8EB</color>
+    <color name="settings_icon_color">#AEAFB4</color>
+
 </resources>
