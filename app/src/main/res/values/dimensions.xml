@@ -7,5 +7,7 @@
     <dimen name="big_text_size">40sp</dimen>
     <dimen name="icon_size">24dp</dimen>
     <dimen name="settings_options_text_size">16sp</dimen>
-    <dimen name="settings_options_padding_vertical">12dp</dimen>
+    <dimen name="settings_options_padding_vertical">21dp</dimen>
+    <dimen name="settings_options_text_padding">16dp</dimen>
+    <dimen name="settings_options_icon_margin">12dp</dimen>
 </resources>

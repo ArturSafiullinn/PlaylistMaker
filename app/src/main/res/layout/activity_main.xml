@@ -31,13 +31,13 @@
                 android:layout_weight="1"
                 android:background="@color/white"
                 android:text="@string/search_button"
-                android:textColor="@color/black"
+                android:textColor="@color/YP_Black"
                 android:textSize="@dimen/text_size"
                 app:backgroundTint="@color/white"
                 app:icon="@drawable/search"
                 app:iconGravity="textStart"
                 app:iconPadding="@dimen/icon_padding"
-                app:iconTint="@color/black">
+                app:iconTint="@color/YP_Black">
         </com.google.android.material.button.MaterialButton>
 
         <com.google.android.material.button.MaterialButton
@@ -50,11 +50,11 @@
                 app:icon="@drawable/library"
                 app:iconGravity="textStart"
                 app:iconPadding="@dimen/icon_padding"
-                app:iconTint="@color/black"
+                app:iconTint="@color/YP_Black"
                 app:cornerRadius="@dimen/button_radius"
                 android:text="@string/media_button"
                 android:textSize="@dimen/text_size"
-                android:textColor="@color/black"
+                android:textColor="@color/YP_Black"
                 app:backgroundTint="@color/white"
                 >
         </com.google.android.material.button.MaterialButton>
@@ -69,11 +69,11 @@
                 app:icon="@drawable/settings"
                 app:iconGravity="textStart"
                 app:iconPadding="@dimen/icon_padding"
-                app:iconTint="@color/black"
+                app:iconTint="@color/YP_Black"
                 app:cornerRadius="@dimen/button_radius"
                 android:text="@string/settings_button"
                 android:textSize="@dimen/text_size"
-                android:textColor="@color/black"
+                android:textColor="@color/YP_Black"
                 app:backgroundTint="@color/white"
                 >
         </com.google.android.material.button.MaterialButton>

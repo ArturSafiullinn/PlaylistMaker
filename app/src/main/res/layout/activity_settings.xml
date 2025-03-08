@@ -5,7 +5,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:background="@android:color/white"
-    android:padding="16dp">
+    android:padding="4dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -14,10 +14,13 @@
         android:gravity="center_vertical">
 
         <ImageView
-            android:layout_width="@dimen/icon_size"
-            android:layout_height="@dimen/icon_size"
+            android:id="@+id/back_to_main_menu"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:padding="4dp"
+            android:scaleType="center"
             android:src="@drawable/arrow_back"
-            android:padding="4dp" />
+            app:tint="@color/YP_Black" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -25,7 +28,7 @@
             android:text="@string/settings"
             android:textSize="@dimen/text_size"
             android:textStyle="bold"
-            android:textColor="@color/black"
+            android:textColor="@color/YP_Black"
             android:layout_marginStart="12dp" />
     </LinearLayout>
 
@@ -34,19 +37,27 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:paddingVertical="@dimen/settings_options_padding_vertical"
-        android:layout_marginTop="@dimen/buttons_margin">
+        android:paddingVertical="10dp"
+        android:layout_marginTop="@dimen/buttons_margin"
+        android:paddingStart="@dimen/settings_options_text_padding">
 
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="@string/dark_theme"
-            android:textSize="@dimen/settings_options_text_size" />
+            android:textSize="@dimen/settings_options_text_size"
+            android:textColor="@color/YP_Black"
+            />
 
-        <Switch
+        <com.google.android.material.switchmaterial.SwitchMaterial
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            app:thumbTint="@color/switch_thumb_color"
+            app:trackTint="@color/switch_track_color"
+            style="@style/Widget.MaterialComponents.CompoundButton.Switch"
+            android:layout_marginEnd="6dp"
+            android:layout_gravity="center_vertical"/>
     </LinearLayout>
 
     <LinearLayout
@@ -54,19 +65,23 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:paddingVertical="@dimen/settings_options_padding_vertical">
+        android:paddingVertical="@dimen/settings_options_padding_vertical"
+        android:paddingStart="@dimen/settings_options_text_padding">
 
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="@string/share_app"
-            android:textSize="@dimen/settings_options_text_size" />
+            android:textSize="@dimen/settings_options_text_size"
+            android:textColor="@color/YP_Black"/>
 
         <ImageView
             android:layout_width="@dimen/icon_size"
             android:layout_height="@dimen/icon_size"
-            android:src="@drawable/share" />
+            android:src="@drawable/share"
+            app:tint="@color/YP_Text_Gray"
+            android:layout_marginEnd="@dimen/settings_options_icon_margin"/>
     </LinearLayout>
 
     <LinearLayout
@@ -74,19 +89,23 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:paddingVertical="@dimen/settings_options_padding_vertical">
+        android:paddingVertical="@dimen/settings_options_padding_vertical"
+        android:paddingStart="@dimen/settings_options_text_padding">
 
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="@string/write_to_support"
-            android:textSize="@dimen/settings_options_text_size" />
+            android:textSize="@dimen/settings_options_text_size"
+            android:textColor="@color/YP_Black"/>
 
         <ImageView
             android:layout_width="@dimen/icon_size"
             android:layout_height="@dimen/icon_size"
-            android:src="@drawable/support" />
+            android:src="@drawable/support"
+            app:tint="@color/YP_Text_Gray"
+            android:layout_marginEnd="@dimen/settings_options_icon_margin"/>
     </LinearLayout>
 
     <LinearLayout
@@ -94,19 +113,23 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:paddingVertical="@dimen/settings_options_padding_vertical">
+        android:paddingVertical="@dimen/settings_options_padding_vertical"
+        android:paddingStart="@dimen/settings_options_text_padding">
 
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="@string/user_agreement"
-            android:textSize="@dimen/settings_options_text_size" />
+            android:textSize="@dimen/settings_options_text_size"
+            android:textColor="@color/YP_Black"/>
 
         <ImageView
             android:layout_width="@dimen/icon_size"
             android:layout_height="@dimen/icon_size"
-            android:src="@drawable/arrow_forward" />
+            android:src="@drawable/arrow_forward"
+            app:tint="@color/YP_Text_Gray"
+            android:layout_marginEnd="@dimen/settings_options_icon_margin"/>
     </LinearLayout>
 
 
