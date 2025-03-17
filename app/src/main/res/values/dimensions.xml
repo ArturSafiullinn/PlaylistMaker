@@ -10,4 +10,8 @@
     <dimen name="settings_options_padding_vertical">21dp</dimen>
     <dimen name="settings_options_text_padding">16dp</dimen>
     <dimen name="settings_options_icon_margin">12dp</dimen>
+    <dimen name="title_back_button_size">48dp</dimen>
+    <dimen name="title_back_padding">48dp</dimen>
+    <dimen name="title_back_text_padding">12dp</dimen>
+    <dimen name="search_bar_icon_padding">9dp</dimen>
 </resources>
