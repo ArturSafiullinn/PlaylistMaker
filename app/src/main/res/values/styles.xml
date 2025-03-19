@@ -24,17 +24,20 @@
         <item name="tint">@color/icon_gray</item>
         <item name="android:layout_marginEnd">@dimen/settings_options_icon_margin</item>
     </style>
-    <style name="MainActivityButtonStyle">
+    <style name="MainActivityButtonStyle" parent="Widget.Material3.Button.UnelevatedButton">
         <item name="android:background">@color/white</item>
         <item name="android:textColor">@color/black</item>
-        <item name="fontFamily">@font/ys_display_regular</item>
-        <item name="android:fontWeight">500</item>
+        <item name="android:fontFamily">@font/ys_display_regular</item>
+        <item name="android:textAllCaps">false</item>
         <item name="android:textStyle">bold</item>
         <item name="android:textSize">@dimen/text_size</item>
         <item name="backgroundTint">@color/white</item>
         <item name="iconGravity">textStart</item>
         <item name="iconPadding">@dimen/icon_padding</item>
         <item name="iconTint">@color/black</item>
-        <item name="cornerRadius">@dimen/button_radius</item>
+        <item name="shapeAppearanceOverlay">@style/CustomButtonShape</item>
+    </style>
+    <style name="CustomButtonShape" parent="ShapeAppearance.Material3.MediumComponent">
+        <item name="cornerSize">16dp</item>
     </style>
 </resources>
