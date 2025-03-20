@@ -10,4 +10,13 @@
     <string name="share_app">Поделиться приложением</string>
     <string name="write_to_support">Написать в поддержку</string>
     <string name="user_agreement">Пользовательское соглашение</string>
+    <string name="share_text">Присоединяйся к Android-разработке в Практикуме! Ссылка на онлайн-обучение - https://practicum.yandex.ru/android-developer</string>
+    <string name="mail_subject">Сообщение разработчикам и разработчицам приложения Playlist Maker</string>
+    <string name="mail_address_example">student@example.com</string>
+    <string name="mail_message">Спасибо разработчикам и разработчицам за крутое приложение!</string>
+    <string name="choose_app">Выберите приложение.</string>
+    <string name="no_such_app">Выберите приложение.</string>
+    <string name="agreement_url">https://yandex.ru/legal/practicum_offer/</string>
+    <string name="search_activity_title">Поиск</string>
+
 </resources>

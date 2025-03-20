@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
-    android:background="@android:color/white"
+    android:background="@color/settings_background_color"
     android:padding="4dp">
 
     <LinearLayout
@@ -20,16 +20,14 @@
             android:padding="4dp"
             android:scaleType="center"
             android:src="@drawable/arrow_back"
-            app:tint="@color/YP_Black" />
+            app:tint="@color/text_black" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/settings"
-            android:textSize="@dimen/text_size"
-            android:textStyle="bold"
-            android:textColor="@color/YP_Black"
-            android:layout_marginStart="12dp" />
+            android:layout_marginStart="12dp"
+            style="@style/TitleTextStyle"/>
     </LinearLayout>
 
     <LinearLayout
@@ -46,8 +44,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="@string/dark_theme"
-            android:textSize="@dimen/settings_options_text_size"
-            android:textColor="@color/YP_Black"
+            style="@style/SettingsOptionsTextStyle"
             />
 
         <com.google.android.material.switchmaterial.SwitchMaterial
@@ -63,6 +60,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:id="@+id/share_button"
         android:orientation="horizontal"
         android:gravity="center_vertical"
         android:paddingVertical="@dimen/settings_options_padding_vertical"
@@ -73,20 +71,17 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="@string/share_app"
-            android:textSize="@dimen/settings_options_text_size"
-            android:textColor="@color/YP_Black"/>
+            style="@style/SettingsOptionsTextStyle" />
 
         <ImageView
-            android:layout_width="@dimen/icon_size"
-            android:layout_height="@dimen/icon_size"
             android:src="@drawable/share"
-            app:tint="@color/YP_Text_Gray"
-            android:layout_marginEnd="@dimen/settings_options_icon_margin"/>
+            style="@style/SettingsOptionsIconStyle" />
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:id="@+id/support_button"
         android:orientation="horizontal"
         android:gravity="center_vertical"
         android:paddingVertical="@dimen/settings_options_padding_vertical"
@@ -96,21 +91,19 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:id="@+id/s"
             android:text="@string/write_to_support"
-            android:textSize="@dimen/settings_options_text_size"
-            android:textColor="@color/YP_Black"/>
+            style="@style/SettingsOptionsTextStyle" />
 
         <ImageView
-            android:layout_width="@dimen/icon_size"
-            android:layout_height="@dimen/icon_size"
             android:src="@drawable/support"
-            app:tint="@color/YP_Text_Gray"
-            android:layout_marginEnd="@dimen/settings_options_icon_margin"/>
+            style="@style/SettingsOptionsIconStyle" />
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:id="@+id/agreement_button"
         android:orientation="horizontal"
         android:gravity="center_vertical"
         android:paddingVertical="@dimen/settings_options_padding_vertical"
@@ -121,15 +114,11 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="@string/user_agreement"
-            android:textSize="@dimen/settings_options_text_size"
-            android:textColor="@color/YP_Black"/>
+            style="@style/SettingsOptionsTextStyle" />
 
         <ImageView
-            android:layout_width="@dimen/icon_size"
-            android:layout_height="@dimen/icon_size"
             android:src="@drawable/arrow_forward"
-            app:tint="@color/YP_Text_Gray"
-            android:layout_marginEnd="@dimen/settings_options_icon_margin"/>
+            style="@style/SettingsOptionsIconStyle" />
     </LinearLayout>
 
 

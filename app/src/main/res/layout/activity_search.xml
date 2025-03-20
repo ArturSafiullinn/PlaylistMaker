@@ -1,19 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".SearchActivity">
-    <TextView
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:background="@color/settings_background_color"
+    android:padding="4dp">
+
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        android:text="@string/activity_search_text"
-        android:textSize="@dimen/big_text_size"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent">
-    </TextView>
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <ImageView
+            android:id="@+id/back_to_main_menu"
+            android:layout_width="@dimen/title_back_button_size"
+            android:layout_height="@dimen/title_back_button_size"
+            android:padding="@dimen/title_back_padding"
+            android:scaleType="center"
+            android:src="@drawable/arrow_back"
+            app:tint="@color/text_black" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/search_activity_title"
+            android:layout_marginStart="@dimen/title_back_text_padding"
+            style="@style/TitleTextStyle"/>
+    </LinearLayout>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <EditText
+            android:id="@+id/search_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:hint="@string/search_activity_title"
+            android:textColorHint="@color/gray"
+            android:drawableStart="@drawable/search"
+            android:drawableEnd="@drawable/ic_clear"
+            android:drawablePadding="8dp"
+            android:drawableTint="@color/gray"
+            android:background="@drawable/search_background"
+            android:padding="@dimen/search_bar_icon_padding">
+        </EditText>
+    </RelativeLayout>
+</LinearLayout>
