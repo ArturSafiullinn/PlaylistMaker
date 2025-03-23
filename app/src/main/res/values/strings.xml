@@ -18,5 +18,5 @@
     <string name="no_such_app">Выберите приложение.</string>
     <string name="agreement_url">https://yandex.ru/legal/practicum_offer/</string>
     <string name="search_activity_title">Поиск</string>
-
+    <string name="search_text">search_text</string>
 </resources>

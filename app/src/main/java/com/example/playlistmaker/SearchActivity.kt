@@ -6,6 +6,7 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.view.MotionEvent
 import android.view.View
+import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
@@ -39,7 +40,7 @@ class SearchActivity : AppCompatActivity() {
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        outState.putString("search_text", searchText)
+        outState.putString(getString(R.string.search_text), searchText)
     }
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
@@ -69,10 +70,16 @@ class SearchActivity : AppCompatActivity() {
                 val drawableEndX = this.right - this.compoundPaddingRight
                 if (touchPositionX >= drawableEndX) {
                     this.setText("")
+                    hideKeyboard()
                     return@setOnTouchListener true
                 }
             }
             return@setOnTouchListener false
         }
+    }
+
+    private fun hideKeyboard() {
+        val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(currentFocus?.windowToken, 0)
     }
 }
