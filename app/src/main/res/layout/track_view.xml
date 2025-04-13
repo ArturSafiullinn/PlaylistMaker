@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<LinearLayout xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="horizontal"
+    android:layout_height="wrap_content"
+    android:layout_width="match_parent"
+    android:padding="12dp"
+    android:gravity="center_vertical"
+    android:background="@color/settings_background_color"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <ImageView
+        android:id="@+id/album_image"
+        android:layout_height="45dp"
+        android:layout_width="45dp"
+        android:scaleType="centerCrop"
+        android:padding="8dp" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/track_name"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textFontWeight="400"
+            android:layout_marginStart="8dp"
+            android:gravity="start"
+            android:textColor="@color/text_black"
+            android:ellipsize="end"
+            android:maxLines="1"
+            tools:text="Very Very Very Long Track Name That Should Be Truncated"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/track_artist"
+            android:textSize="11sp"
+            android:textStyle="bold"
+            android:textFontWeight="400"
+            android:layout_marginStart="8dp"
+            android:textColor="@color/gray1"
+            android:gravity="start"
+            tools:text="Nirvana" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ellipse_1"
+            app:tint="@color/gray"
+            android:layout_gravity="center"
+            android:layout_margin="5dp"/>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/track_duration"
+            android:textSize="11sp"
+            android:textStyle="bold"
+            android:textFontWeight="400"
+            android:textColor="@color/gray1"
+            android:gravity="start"
+            tools:text="5:01" />
+        </LinearLayout>
+    </LinearLayout>
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:src="@drawable/arrow_forward"
+        android:layout_gravity="end"
+        app:tint="@color/gray" />
+</LinearLayout>

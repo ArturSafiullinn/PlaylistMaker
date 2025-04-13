@@ -19,4 +19,5 @@
     <color name="switch_track_active_color">#9FBCF5</color>
     <color name="gray">#AEAFB4</color>
     <color name="light_gray">#E6E8EB</color>
+    <color name="gray1">#AEAFB4</color>
 </resources>
