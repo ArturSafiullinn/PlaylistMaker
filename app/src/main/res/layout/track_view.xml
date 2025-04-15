@@ -27,8 +27,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/track_name"
+            android:fontFamily="@font/ys_display_regular"
             android:textSize="16sp"
-            android:textStyle="bold"
+            android:textStyle="normal"
             android:textFontWeight="400"
             android:layout_marginStart="8dp"
             android:gravity="start"
@@ -45,30 +46,22 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/track_artist"
-            android:textSize="11sp"
-            android:textStyle="bold"
-            android:textFontWeight="400"
+            style="@style/TrackSmallTextStyle"
             android:layout_marginStart="8dp"
-            android:textColor="@color/gray1"
-            android:gravity="start"
             tools:text="Nirvana" />
 
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/ellipse_1"
-            app:tint="@color/gray"
+            app:tint="@color/gray1"
             android:layout_gravity="center"
             android:layout_margin="5dp"/>
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/track_duration"
-            android:textSize="11sp"
-            android:textStyle="bold"
-            android:textFontWeight="400"
-            android:textColor="@color/gray1"
-            android:gravity="start"
+            style="@style/TrackSmallTextStyle"
             tools:text="5:01" />
         </LinearLayout>
     </LinearLayout>
@@ -77,5 +70,5 @@
         android:layout_height="match_parent"
         android:src="@drawable/arrow_forward"
         android:layout_gravity="end"
-        app:tint="@color/gray" />
+        app:tint="@color/gray1" />
 </LinearLayout>

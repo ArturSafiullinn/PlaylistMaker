@@ -36,7 +36,7 @@
             android:id="@+id/search_input"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="16dp"
+            android:layout_margin="@dimen/screen_padding"
             android:hint="@string/search_activity_title"
             android:textColorHint="@color/gray"
             android:drawableStart="@drawable/search"
