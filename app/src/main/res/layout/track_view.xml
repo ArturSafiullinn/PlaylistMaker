@@ -25,7 +25,8 @@
 
         <TextView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
+            android:layout_weight="1"
             android:id="@+id/track_name"
             android:fontFamily="@font/ys_display_regular"
             android:textSize="16sp"
@@ -40,11 +41,13 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
+            android:layout_weight="1"
             android:orientation="horizontal">
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="center"
             android:id="@+id/track_artist"
             style="@style/TrackSmallTextStyle"
             android:layout_marginStart="8dp"
@@ -60,6 +63,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_gravity="center"
             android:id="@+id/track_duration"
             style="@style/TrackSmallTextStyle"
             tools:text="5:01" />
