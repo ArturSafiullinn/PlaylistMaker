@@ -37,7 +37,7 @@
         android:gravity="center_vertical"
         android:paddingVertical="10dp"
         android:layout_marginTop="@dimen/buttons_margin"
-        android:paddingStart="@dimen/settings_options_text_padding">
+        android:paddingStart="@dimen/screen_padding">
 
         <TextView
             android:layout_width="0dp"
@@ -64,7 +64,7 @@
         android:orientation="horizontal"
         android:gravity="center_vertical"
         android:paddingVertical="@dimen/settings_options_padding_vertical"
-        android:paddingStart="@dimen/settings_options_text_padding">
+        android:paddingStart="@dimen/screen_padding">
 
         <TextView
             android:layout_width="0dp"
@@ -85,7 +85,7 @@
         android:orientation="horizontal"
         android:gravity="center_vertical"
         android:paddingVertical="@dimen/settings_options_padding_vertical"
-        android:paddingStart="@dimen/settings_options_text_padding">
+        android:paddingStart="@dimen/screen_padding">
 
         <TextView
             android:layout_width="0dp"
@@ -107,7 +107,7 @@
         android:orientation="horizontal"
         android:gravity="center_vertical"
         android:paddingVertical="@dimen/settings_options_padding_vertical"
-        android:paddingStart="@dimen/settings_options_text_padding">
+        android:paddingStart="@dimen/screen_padding">
 
         <TextView
             android:layout_width="0dp"

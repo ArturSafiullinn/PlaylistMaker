@@ -19,9 +19,9 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:layout_marginLeft="16dp"
+        android:layout_marginLeft="@dimen/screen_padding"
         android:layout_marginTop="@dimen/buttons_margin"
-        android:layout_marginRight="16dp"
+        android:layout_marginRight="@dimen/screen_padding"
         android:layout_marginBottom="28dp">
 
 
@@ -42,7 +42,6 @@
             android:layout_marginTop="@dimen/buttons_margin"
             android:layout_weight="1"
             android:text="@string/media_button"
-            app:cornerRadius="16dp"
             app:icon="@drawable/library" />
 
         <com.google.android.material.button.MaterialButton
@@ -54,7 +53,6 @@
             android:layout_marginTop="@dimen/buttons_margin"
             app:icon="@drawable/settings"
             android:text="@string/settings_button"
-            app:cornerRadius="16dp"
                 >
         </com.google.android.material.button.MaterialButton>
     </LinearLayout>
