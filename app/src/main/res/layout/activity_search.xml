@@ -3,6 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:background="@color/settings_background_color"
     android:padding="4dp">
@@ -44,12 +45,79 @@
             android:drawablePadding="8dp"
             android:drawableTint="@color/gray"
             android:background="@drawable/search_background"
-            android:padding="@dimen/search_bar_icon_padding">
+            android:padding="@dimen/search_bar_icon_padding"
+            android:imeOptions="actionDone"
+            android:singleLine="true">
         </EditText>
     </RelativeLayout>
+    <!-- Layout "ничего не найдено" -->
+    <LinearLayout
+        android:id="@+id/empty_view"
+        android:orientation="vertical"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:paddingTop="32dp">
+
+        <ImageView
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:src="@drawable/nothing_found" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/nothing_found"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            style="@style/ErrorTextStyle"
+            tools:text="Very Very Very Long Track Name That Should Be Truncated"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/error_view"
+        android:orientation="vertical"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:paddingTop="32dp">
+
+        <ImageView
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:src="@drawable/no_internet" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="24dp"
+            android:text="@string/no_internet"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            style="@style/ErrorTextStyle"/>
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/retry_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/refresh"
+            android:fontFamily="@font/ys_display_regular"
+            android:textFontWeight="500"
+            android:textSize="14sp"
+            android:textAllCaps="false"
+            android:backgroundTint="@color/black"
+            android:textColor="@android:color/white"
+            android:paddingLeft="24dp"
+            android:paddingRight="24dp"
+            android:minHeight="48dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="16dp"
+            android:layout_gravity="center"
+            app:cornerRadius="54dp"/>
+    </LinearLayout>
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
+
+
 </LinearLayout>
