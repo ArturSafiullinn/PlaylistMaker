@@ -9,25 +9,25 @@ import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 
 class TrackViewHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
     private val trackName: TextView
-    private val artistName: TextView
-    private val trackTime: TextView
+    private val artistAndTime: TextView
     private val artWorkUrl: ImageView
     init {
         trackName = itemView.findViewById(R.id.track_name)
-        artistName = itemView.findViewById(R.id.track_artist)
-        trackTime = itemView.findViewById(R.id.track_duration)
+        artistAndTime = itemView.findViewById(R.id.track_artist_and_duration)
         artWorkUrl = itemView.findViewById(R.id.album_image)
     }
     fun bind (track: Track) {
         trackName.text = track.trackName
-        artistName.text = track.artistName
-        trackTime.text = track.trackTime
+        artistAndTime.text = "${track.artistName} • ${track.trackTime}"
+        val cornerRadiusDp = 2
+        val density = itemView.resources.displayMetrics.density
+        val cornerRadiusPx = (cornerRadiusDp * density).toInt()
         Glide.with(itemView)
             .load(track.artworkUrl)
             .placeholder(R.drawable.placeholder)
             .error(R.drawable.erro_placeholder)
             .centerCrop()
-            .transform(RoundedCorners(2))
+            .transform(RoundedCorners(cornerRadiusPx))
             .into(artWorkUrl)
     }
 }

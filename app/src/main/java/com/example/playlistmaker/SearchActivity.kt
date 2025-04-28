@@ -124,7 +124,7 @@ class SearchActivity : AppCompatActivity() {
 
                     val formattedTracks = results.map { dto ->
                         Track(
-                            trackId = dto.trackId,
+                            trackId = dto.trackId ?: 0,
                             trackName = dto.trackName.orEmpty(),
                             artistName = dto.artistName.orEmpty(),
                             trackTime = dto.trackTimeMillis?.let { formatTime(it) } ?: "",

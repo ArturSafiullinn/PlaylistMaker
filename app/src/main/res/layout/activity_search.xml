@@ -39,6 +39,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/screen_padding"
             android:hint="@string/search_activity_title"
+            android:textColor="@color/black"
             android:textColorHint="@color/gray"
             android:drawableStart="@drawable/search"
             android:drawableEnd="@drawable/ic_clear"
@@ -73,7 +74,8 @@
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/history_recycler"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
+            android:layout_weight="1"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             android:overScrollMode="never"
             android:nestedScrollingEnabled="false" />

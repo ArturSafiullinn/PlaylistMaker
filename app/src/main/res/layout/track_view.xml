@@ -14,8 +14,7 @@
         android:id="@+id/album_image"
         android:layout_height="45dp"
         android:layout_width="45dp"
-        android:scaleType="centerCrop"
-        android:padding="8dp" />
+        android:scaleType="centerCrop" />
 
     <LinearLayout
         android:layout_width="0dp"
@@ -38,36 +37,19 @@
             android:ellipsize="end"
             android:maxLines="1"
             tools:text="Very Very Very Long Track Name That Should Be Truncated"/>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:orientation="horizontal">
         <TextView
-            android:layout_width="wrap_content"
+            android:id="@+id/track_artist_and_duration"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:id="@+id/track_artist"
-            style="@style/TrackSmallTextStyle"
             android:layout_marginStart="8dp"
-            tools:text="Nirvana" />
+            android:fontFamily="@font/ys_display_regular"
+            android:textSize="14sp"
+            android:textStyle="normal"
+            android:textColor="@color/gray1"
+            android:ellipsize="end"
+            android:maxLines="1"
+            tools:text="Nirvana • 5:01" />
 
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ellipse_1"
-            app:tint="@color/gray1"
-            android:layout_gravity="center"
-            android:layout_margin="5dp"/>
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:id="@+id/track_duration"
-            style="@style/TrackSmallTextStyle"
-            tools:text="5:01" />
-        </LinearLayout>
     </LinearLayout>
     <ImageView
         android:layout_width="wrap_content"
