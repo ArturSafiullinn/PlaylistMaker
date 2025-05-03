@@ -1,6 +1,7 @@
 package com.example.playlistmaker
 
 import android.content.Context
+import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 
@@ -17,10 +18,10 @@ object SearchHistory {
             ArrayList(
                 rawHistory.map {
                     it.copy(
-                        trackName = it.trackName.trim(),
-                        artistName = it.artistName.trim(),
-                        trackTime = it.trackTime.trim(),
-                        artworkUrl = it.artworkUrl.trim()
+                        trackName = it.trackName.smartTrim(),
+                        artistName = it.artistName.smartTrim(),
+                        trackTime = it.trackTime.smartTrim(),
+                        artworkUrl = it.artworkUrl.smartTrim()
                     )
                 }
             )
