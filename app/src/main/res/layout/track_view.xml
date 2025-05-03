@@ -37,7 +37,7 @@
             android:textColor="@color/text_black"
             android:ellipsize="end"
             android:maxLines="1"
-            tools:text="Very Very Very Long Track Name That Should Be Truncated"/>
+            tools:text="Very Very "/>
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -52,18 +52,15 @@
                 style="@style/TrackSmallTextStyle"
                 android:ellipsize="end"
                 android:maxLines="1"
-                android:singleLine="true"
-                tools:text="Nirvana • 5:01Nirvana • 5:01Nirvana • 5:01Nirvana • 5:01" />
+                tools:text="Nirvana • 5kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk" />
             <TextView
                 android:id="@+id/track_duration"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 style="@style/TrackSmallTextStyle"
-                android:maxLines="1"
-                android:singleLine="true"
                 app:drawableStartCompat="@drawable/dot"
                 android:drawablePadding="5dp"
-                tools:text="Nirvana • 5:01" />
+                tools:text="5:01" />
         </LinearLayout>
     </LinearLayout>
     <ImageView

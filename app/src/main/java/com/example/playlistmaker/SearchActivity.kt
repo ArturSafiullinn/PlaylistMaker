@@ -30,6 +30,8 @@ class SearchActivity : AppCompatActivity() {
     private lateinit var errorView: LinearLayout
     private lateinit var historyContainer: LinearLayout
     private lateinit var clearHistoryButton: Button
+    private lateinit var historyRecycler: RecyclerView
+    private lateinit var recyclerView: RecyclerView
 
     private val retrofit = Retrofit.Builder()
         .baseUrl("https://itunes.apple.com/")
@@ -47,8 +49,8 @@ class SearchActivity : AppCompatActivity() {
         historyContainer = findViewById(R.id.history_container)
         clearHistoryButton = findViewById(R.id.clear_history_button)
         val backButton = findViewById<ImageView>(R.id.back_to_main_menu)
-        val recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
-        val historyRecycler = findViewById<RecyclerView>(R.id.history_recycler)
+        recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
+        historyRecycler = findViewById<RecyclerView>(R.id.history_recycler)
         val searchInput = findViewById<EditText>(R.id.search_input)
 
         backButton.setOnClickListener {
@@ -119,22 +121,24 @@ class SearchActivity : AppCompatActivity() {
                         emptyView.visibility = View.VISIBLE
                         trackList.clear()
                         trackAdapter.notifyDataSetChanged()
+                        recyclerView.recycledViewPool.clear()
                         return
                     }
 
                     val formattedTracks = results.map { dto ->
                         Track(
                             trackId = dto.trackId ?: 0,
-                            trackName = dto.trackName.orEmpty(),
-                            artistName = dto.artistName.orEmpty(),
+                            trackName = dto.trackName.orEmpty().trim(),
+                            artistName = dto.artistName.orEmpty().trim(),
                             trackTime = dto.trackTimeMillis?.let { formatTime(it) } ?: "",
-                            artworkUrl = dto.artworkUrl100.orEmpty()
+                            artworkUrl = dto.artworkUrl100.orEmpty().trim()
                         )
                     }
 
                     trackList.clear()
                     trackList.addAll(formattedTracks)
                     trackAdapter.notifyDataSetChanged()
+                    recyclerView.recycledViewPool.clear()
                 } else {
                     errorView.visibility = View.VISIBLE
                 }
@@ -153,6 +157,7 @@ class SearchActivity : AppCompatActivity() {
         if (input.hasFocus() && input.text.isEmpty() && history.isNotEmpty()) {
             historyContainer.visibility = View.VISIBLE
             historyAdapter.updateData(history)
+            historyRecycler.recycledViewPool.clear()
         } else {
             historyContainer.visibility = View.GONE
         }

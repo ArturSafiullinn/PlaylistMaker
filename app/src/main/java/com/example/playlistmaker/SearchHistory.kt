@@ -13,11 +13,22 @@ object SearchHistory {
         val prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
         val json = prefs.getString(KEY_TRACK_HISTORY, null)
         return if (!json.isNullOrEmpty()) {
-            Gson().fromJson(json, object : TypeToken<ArrayList<Track>>() {}.type)
+            val rawHistory: ArrayList<Track> = Gson().fromJson(json, object : TypeToken<ArrayList<Track>>() {}.type)
+            ArrayList(
+                rawHistory.map {
+                    it.copy(
+                        trackName = it.trackName.trim(),
+                        artistName = it.artistName.trim(),
+                        trackTime = it.trackTime.trim(),
+                        artworkUrl = it.artworkUrl.trim()
+                    )
+                }
+            )
         } else {
             arrayListOf()
         }
     }
+
 
     fun saveHistory(context: Context, history: ArrayList<Track>) {
         val prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
@@ -28,12 +39,19 @@ object SearchHistory {
     }
 
     fun addTrack(context: Context, track: Track) {
+        val cleanedTrack = track.copy(
+            trackName = track.trackName.trim(),
+            artistName = track.artistName.trim(),
+            trackTime = track.trackTime.trim(),
+            artworkUrl = track.artworkUrl.trim()
+        )
         val history = getHistory(context)
-        history.removeAll { it.trackId == track.trackId }
-        history.add(0, track)
+        history.removeAll { it.trackId == cleanedTrack.trackId }
+        history.add(0, cleanedTrack)
         if (history.size > MAX_HISTORY_SIZE) history.removeLast()
         saveHistory(context, history)
     }
+
 
     fun clearHistory(context: Context) {
         saveHistory(context, arrayListOf())
