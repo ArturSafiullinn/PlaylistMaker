@@ -39,6 +39,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/screen_padding"
             android:hint="@string/search_activity_title"
+            android:textColor="@color/black"
             android:textColorHint="@color/gray"
             android:drawableStart="@drawable/search"
             android:drawableEnd="@drawable/ic_clear"
@@ -50,7 +51,44 @@
             android:singleLine="true">
         </EditText>
     </RelativeLayout>
-    <!-- Layout "ничего не найдено" -->
+    <LinearLayout
+        android:id="@+id/history_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone"
+        android:paddingTop="16dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/you_searched"
+            android:fontFamily="@font/ys_display_regular"
+            android:textColor="@color/black"
+            android:textFontWeight="500"
+            android:textSize="19sp"
+            android:paddingBottom="8dp"
+            android:layout_gravity="center"
+            android:textStyle="bold"/>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/history_recycler"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            android:overScrollMode="never"
+            android:nestedScrollingEnabled="false" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/clear_history_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="@string/clear_history"
+            style="@style/SearchActivityButtonStyle" />
+    </LinearLayout>
+
     <LinearLayout
         android:id="@+id/empty_view"
         android:orientation="vertical"
@@ -99,25 +137,13 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/refresh"
-            android:fontFamily="@font/ys_display_regular"
-            android:textFontWeight="500"
-            android:textSize="14sp"
-            android:textAllCaps="false"
-            android:backgroundTint="@color/black"
-            android:textColor="@android:color/white"
-            android:paddingLeft="24dp"
-            android:paddingRight="24dp"
-            android:minHeight="48dp"
+            style="@style/SearchActivityButtonStyle"
             android:layout_marginTop="8dp"
-            android:layout_marginBottom="16dp"
-            android:layout_gravity="center"
-            app:cornerRadius="54dp"/>
+            android:layout_marginBottom="16dp" />
     </LinearLayout>
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
-
-
 </LinearLayout>

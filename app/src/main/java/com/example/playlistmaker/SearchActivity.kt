@@ -25,8 +25,13 @@ class SearchActivity : AppCompatActivity() {
     private var searchText: String = ""
     private val trackList: ArrayList<Track> = arrayListOf()
     private lateinit var trackAdapter: TrackAdapter
+    private lateinit var historyAdapter: TrackAdapter
     private lateinit var emptyView: LinearLayout
     private lateinit var errorView: LinearLayout
+    private lateinit var historyContainer: LinearLayout
+    private lateinit var clearHistoryButton: Button
+    private lateinit var historyRecycler: RecyclerView
+    private lateinit var recyclerView: RecyclerView
 
     private val retrofit = Retrofit.Builder()
         .baseUrl("https://itunes.apple.com/")
@@ -41,13 +46,17 @@ class SearchActivity : AppCompatActivity() {
 
         emptyView = findViewById(R.id.empty_view)
         errorView = findViewById(R.id.error_view)
-
+        historyContainer = findViewById(R.id.history_container)
+        clearHistoryButton = findViewById(R.id.clear_history_button)
         val backButton = findViewById<ImageView>(R.id.back_to_main_menu)
+        recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
+        historyRecycler = findViewById<RecyclerView>(R.id.history_recycler)
+        val searchInput = findViewById<EditText>(R.id.search_input)
+
         backButton.setOnClickListener {
             startActivity(Intent(this, MainActivity::class.java))
         }
 
-        val searchInput = findViewById<EditText>(R.id.search_input)
         searchInput.setupClearButtonWithAction()
 
         searchInput.setOnEditorActionListener { _, actionId, _ ->
@@ -63,13 +72,36 @@ class SearchActivity : AppCompatActivity() {
             }
         }
 
-        trackAdapter = TrackAdapter(trackList)
-        val recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
+        searchInput.setOnFocusChangeListener { _, _ -> updateHistoryVisibility() }
+        searchInput.addTextChangedListener(object : TextWatcher {
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                updateHistoryVisibility()
+            }
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
+            override fun afterTextChanged(s: Editable?) = Unit
+        })
+
+        trackAdapter = TrackAdapter(trackList) { track ->
+            SearchHistory.addTrack(this, track)
+            updateHistoryVisibility()
+        }
+
+        historyAdapter = TrackAdapter(arrayListOf()) { track ->
+            SearchHistory.addTrack(this, track)
+            updateHistoryVisibility()
+        }
+
         recyclerView.adapter = trackAdapter
+        historyRecycler.adapter = historyAdapter
+
+        clearHistoryButton.setOnClickListener {
+            SearchHistory.clearHistory(this)
+            updateHistoryVisibility()
+        }
 
         val retryButton = findViewById<Button>(R.id.retry_button)
         retryButton.setOnClickListener {
-            val query = findViewById<EditText>(R.id.search_input).text.toString()
+            val query = searchInput.text.toString()
             if (query.isNotEmpty()) {
                 searchTracks(query)
             }
@@ -89,21 +121,24 @@ class SearchActivity : AppCompatActivity() {
                         emptyView.visibility = View.VISIBLE
                         trackList.clear()
                         trackAdapter.notifyDataSetChanged()
+                        recyclerView.recycledViewPool.clear()
                         return
                     }
 
                     val formattedTracks = results.map { dto ->
                         Track(
-                            trackName = dto.trackName.orEmpty(),
-                            artistName = dto.artistName.orEmpty(),
-                            trackTime = dto.trackTimeMillis.let { ms -> formatTime(ms) },
-                            artworkUrl = dto.artworkUrl100.orEmpty()
+                            trackId = dto.trackId ?: 0,
+                            trackName = dto.trackName.orEmpty().trim(),
+                            artistName = dto.artistName.orEmpty().trim(),
+                            trackTime = dto.trackTimeMillis?.let { formatTime(it) } ?: "",
+                            artworkUrl = dto.artworkUrl100.orEmpty().trim()
                         )
                     }
 
                     trackList.clear()
                     trackList.addAll(formattedTracks)
                     trackAdapter.notifyDataSetChanged()
+                    recyclerView.recycledViewPool.clear()
                 } else {
                     errorView.visibility = View.VISIBLE
                 }
@@ -116,10 +151,19 @@ class SearchActivity : AppCompatActivity() {
         })
     }
 
+    private fun updateHistoryVisibility() {
+        val input = findViewById<EditText>(R.id.search_input)
+        val history = SearchHistory.getHistory(this)
+        if (input.hasFocus() && input.text.isEmpty() && history.isNotEmpty()) {
+            historyContainer.visibility = View.VISIBLE
+            historyAdapter.updateData(history)
+            historyRecycler.recycledViewPool.clear()
+        } else {
+            historyContainer.visibility = View.GONE
+        }
+    }
 
-
-
-    private fun formatTime(ms: Long?): String {
+    private fun formatTime(ms: Long): String {
         return SimpleDateFormat("mm:ss", Locale.getDefault()).format(ms)
     }
 
@@ -145,9 +189,7 @@ class SearchActivity : AppCompatActivity() {
                 setCompoundDrawablesWithIntrinsicBounds(searchIcon, null, clearDrawable, null)
             }
 
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) =
-                Unit
-
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) = Unit
         })
 
