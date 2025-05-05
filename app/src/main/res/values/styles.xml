@@ -76,4 +76,20 @@
         <item name="android:layout_gravity">center_horizontal</item>
         <item name="android:minHeight">48dp</item>
     </style>
+    <style name="TrackInfoCharacteristics">
+        <item name="fontFamily">@font/ys_display_regular</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontWeight">400</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:textColor">@color/gray1</item>
+    </style>
+    <style name="TrackInfoValues">
+        <item name="fontFamily">@font/ys_display_regular</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontWeight">400</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:textColor">@color/black</item>
+    </style>
 </resources>
