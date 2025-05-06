@@ -11,8 +11,7 @@ class TrackActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_play)
-
+        setContentView(R.layout.activity_track)
         val track = intent.getParcelableExtra<Track>("track") ?: return
 
         findViewById<TextView>(R.id.track_title).text = track.trackName

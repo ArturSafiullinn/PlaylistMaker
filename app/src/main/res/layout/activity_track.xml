@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/settings_background_color">
+    android:background="@color/settings_background_color"
+    tools:context=".TrackActivity">
 
     <ImageView
         android:id="@+id/back_button"
@@ -43,9 +44,10 @@
 
     <TextView
         android:id="@+id/track_title"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         tools:text="Yesterday (Remastered 2009)"
+        android:gravity="start"
         android:textSize="22sp"
         android:fontFamily="@font/ys_display_regular"
         android:textStyle="bold"
@@ -104,10 +106,11 @@
         android:layout_height="0dp"
         app:layout_constraintDimensionRatio="1:1"
         app:layout_constraintWidth_percent="0.12"
-        android:src="@drawable/add_to_favorite_active_button"
+        android:src="@drawable/add_to_favorite_inactive_button"
         android:background="@drawable/gray_circle"
         app:layout_constraintTop_toTopOf="@id/add_button"
-        app:layout_constraintEnd_toEndOf="@id/rightBorder" />
+        app:layout_constraintEnd_toEndOf="@id/rightBorder"
+        app:tint="@color/white"/>
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/leftTextBorder"
@@ -137,12 +140,21 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/buttons_barrier"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:barrierDirection="bottom"
+        app:constraint_referenced_ids="add_button,play_button,like_button, playback_time"/>
+
+
     <TextView
         android:id="@+id/label_duration"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/track_duration"
         style="@style/TrackInfoCharacteristics"
+        app:layout_constraintTop_toBottomOf="@id/buttons_barrier"
         app:layout_constraintBottom_toTopOf="@id/label_album"
         app:layout_constraintStart_toStartOf="@id/leftTextBorder"
         app:layout_constraintTop_toTopOf="@id/value_duration"
@@ -154,6 +166,7 @@
         android:layout_height="wrap_content"
         android:text="@string/track_album"
         style="@style/TrackInfoCharacteristics"
+        app:layout_constraintTop_toBottomOf="@id/label_duration"
         app:layout_constraintBottom_toTopOf="@id/label_year"
         app:layout_constraintStart_toStartOf="@id/leftTextBorder"
         android:layout_marginBottom="16dp" />
@@ -164,6 +177,7 @@
         android:layout_height="wrap_content"
         android:text="@string/track_year"
         style="@style/TrackInfoCharacteristics"
+        app:layout_constraintTop_toBottomOf="@id/label_album"
         app:layout_constraintBottom_toTopOf="@id/label_genre"
         app:layout_constraintStart_toStartOf="@id/leftTextBorder"
         android:layout_marginBottom="16dp" />
@@ -174,6 +188,7 @@
         android:layout_height="wrap_content"
         android:text="@string/track_genre"
         style="@style/TrackInfoCharacteristics"
+        app:layout_constraintTop_toBottomOf="@id/label_year"
         app:layout_constraintBottom_toTopOf="@id/label_country"
         app:layout_constraintStart_toStartOf="@id/leftTextBorder"
         android:layout_marginBottom="16dp" />
@@ -185,6 +200,8 @@
         android:text="@string/track_country"
         style="@style/TrackInfoCharacteristics"
         android:layout_marginBottom="20dp"
+        app:layout_constraintVertical_chainStyle="packed"
+        app:layout_constraintTop_toBottomOf="@id/label_genre"
         app:layout_constraintStart_toStartOf="@id/leftTextBorder"
         app:layout_constraintBottom_toBottomOf="parent" />
 
@@ -201,6 +218,7 @@
         android:layout_height="wrap_content"
         tools:text="5:35"
         style="@style/TrackInfoValues"
+        app:layout_constraintTop_toBottomOf="@id/buttons_barrier"
         app:layout_constraintBottom_toTopOf="@id/value_album"
         app:layout_constraintEnd_toEndOf="@id/rightTextBorder"
         android:layout_marginBottom="16dp" />
@@ -212,6 +230,7 @@
         tools:text="Yesterday (Remastered 2009)"
         style="@style/TrackInfoValues"
         android:layout_marginBottom="16dp"
+        app:layout_constraintTop_toBottomOf="@id/value_duration"
         app:layout_constraintBottom_toTopOf="@id/value_year"
         app:layout_constraintEnd_toEndOf="@id/rightTextBorder" />
 
@@ -222,6 +241,7 @@
         tools:text="1965"
         style="@style/TrackInfoValues"
         android:layout_marginBottom="16dp"
+        app:layout_constraintTop_toBottomOf="@id/value_album"
         app:layout_constraintBottom_toTopOf="@id/value_genre"
         app:layout_constraintEnd_toEndOf="@id/rightTextBorder" />
 
@@ -232,6 +252,7 @@
         tools:text="Rock"
         style="@style/TrackInfoValues"
         android:layout_marginBottom="16dp"
+        app:layout_constraintTop_toBottomOf="@id/value_year"
         app:layout_constraintBottom_toTopOf="@id/value_country"
         app:layout_constraintEnd_toEndOf="@id/rightTextBorder" />
 
@@ -242,6 +263,8 @@
         tools:text="Великобритания"
         style="@style/TrackInfoValues"
         android:layout_marginBottom="20dp"
+        app:layout_constraintVertical_chainStyle="packed"
+        app:layout_constraintTop_toBottomOf="@id/value_genre"
         app:layout_constraintEnd_toEndOf="@id/rightTextBorder"
         app:layout_constraintBottom_toBottomOf="parent" />
 
