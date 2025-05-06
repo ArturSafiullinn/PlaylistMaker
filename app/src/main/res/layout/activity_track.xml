@@ -13,6 +13,7 @@
         android:layout_height="48dp"
         android:padding="12dp"
         android:src="@drawable/arrow_back"
+        app:tint="@color/text_black"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
@@ -46,14 +47,16 @@
         android:id="@+id/track_title"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        tools:text="Yesterday (Remastered 2009)"
+        tools:text="Yesterday (Remastered 2009)Yesterday (Remastered 2009)"
         android:gravity="start"
         android:textSize="22sp"
-        android:fontFamily="@font/ys_display_regular"
-        android:textStyle="bold"
+        android:fontFamily="@font/ys_display_bold"
+        android:textStyle="normal"
         android:textFontWeight="400"
         android:textColor="@color/text_black"
         android:layout_marginTop="24dp"
+        android:ellipsize="end"
+        android:maxLines="1"
         app:layout_constraintTop_toBottomOf="@id/album_cover"
         app:layout_constraintStart_toStartOf="@id/leftBorder"
         app:layout_constraintEnd_toEndOf="@id/rightBorder" />
@@ -65,10 +68,14 @@
         tools:text="The Beatles"
         android:gravity="start"
         android:textSize="14sp"
-        android:fontFamily="@font/ys_display_regular"
+        android:fontFamily="@font/ys_display_bold"
         android:textFontWeight="400"
         android:textColor="@color/text_black"
-        android:layout_marginTop="4dp"
+        android:textAllCaps="false"
+        android:textStyle="bold"
+        android:layout_marginTop="12dp"
+        android:ellipsize="end"
+        android:maxLines="1"
         app:layout_constraintTop_toBottomOf="@id/track_title"
         app:layout_constraintStart_toStartOf="@id/leftBorder"
         app:layout_constraintEnd_toEndOf="@id/rightBorder" />
@@ -154,11 +161,11 @@
         android:layout_height="wrap_content"
         android:text="@string/track_duration"
         style="@style/TrackInfoCharacteristics"
-        app:layout_constraintTop_toBottomOf="@id/buttons_barrier"
         app:layout_constraintBottom_toTopOf="@id/label_album"
         app:layout_constraintStart_toStartOf="@id/leftTextBorder"
-        app:layout_constraintTop_toTopOf="@id/value_duration"
-        android:layout_marginBottom="16dp" />
+        app:layout_constraintTop_toTopOf="@id/buttons_barrier"
+        android:layout_marginBottom="16dp"
+        android:layout_marginTop="30dp"/>
 
     <TextView
         android:id="@+id/label_album"
@@ -221,7 +228,8 @@
         app:layout_constraintTop_toBottomOf="@id/buttons_barrier"
         app:layout_constraintBottom_toTopOf="@id/value_album"
         app:layout_constraintEnd_toEndOf="@id/rightTextBorder"
-        android:layout_marginBottom="16dp" />
+        android:layout_marginBottom="16dp"
+        android:layout_marginTop="30dp"/>
 
     <TextView
         android:id="@+id/value_album"

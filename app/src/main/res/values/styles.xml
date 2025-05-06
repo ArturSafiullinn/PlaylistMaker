@@ -37,7 +37,6 @@
     </style>
     <style name="ButtonTextStyle" parent="TextAppearance.MaterialComponents.Button">
         <item name="fontFamily">@font/ys_display_regular</item>
-
         <item name="android:textStyle">bold</item>
         <item name="android:fontWeight">500</item>
         <item name="android:textAllCaps">false</item>
@@ -86,7 +85,7 @@
     </style>
     <style name="TrackInfoValues">
         <item name="fontFamily">@font/ys_display_regular</item>
-        <item name="android:textStyle">bold</item>
+        <item name="android:textStyle">normal</item>
         <item name="android:fontWeight">400</item>
         <item name="android:textAllCaps">false</item>
         <item name="android:textSize">13sp</item>
