@@ -84,11 +84,17 @@ class SearchActivity : AppCompatActivity() {
         trackAdapter = TrackAdapter(trackList) { track ->
             SearchHistory.addTrack(this, track)
             updateHistoryVisibility()
+            val intent = Intent(this, TrackActivity::class.java)
+            intent.putExtra("track", track)
+            startActivity(intent)
         }
 
         historyAdapter = TrackAdapter(arrayListOf()) { track ->
             SearchHistory.addTrack(this, track)
             updateHistoryVisibility()
+            val intent = Intent(this, TrackActivity::class.java)
+            intent.putExtra("track", track)
+            startActivity(intent)
         }
 
         recyclerView.adapter = trackAdapter
@@ -131,7 +137,11 @@ class SearchActivity : AppCompatActivity() {
                             trackName = dto.trackName.orEmpty().trim(),
                             artistName = dto.artistName.orEmpty().trim(),
                             trackTime = dto.trackTimeMillis?.let { formatTime(it) } ?: "",
-                            artworkUrl = dto.artworkUrl100.orEmpty().trim()
+                            artworkUrl = dto.artworkUrl100.orEmpty().trim(),
+                            collectionName = dto.collectionName.orEmpty().trim(),
+                            releaseDate = dto.releaseDate?.take(4).orEmpty(), // Берем только год
+                            genre = dto.primaryGenreName.orEmpty().trim(),
+                            country = dto.country.orEmpty().trim()
                         )
                     }
 
