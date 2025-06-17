@@ -1,17 +1,14 @@
 package com.example.playlistmaker
 
 import android.content.Intent
-import android.os.Bundle
+import android.os.*
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.MotionEvent
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
-import android.widget.Button
-import android.widget.EditText
-import android.widget.ImageView
-import android.widget.LinearLayout
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
@@ -21,6 +18,10 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 class SearchActivity : AppCompatActivity() {
+
+    companion object {
+        private const val SEARCH_DEBOUNCE_DELAY = 2000L
+    }
 
     private var searchText: String = ""
     private val trackList: ArrayList<Track> = arrayListOf()
@@ -32,6 +33,9 @@ class SearchActivity : AppCompatActivity() {
     private lateinit var clearHistoryButton: Button
     private lateinit var historyRecycler: RecyclerView
     private lateinit var recyclerView: RecyclerView
+    private lateinit var progressBar: View
+    private val handler = Handler(Looper.getMainLooper())
+    private val searchRunnable = Runnable { searchTracks(searchText) }
 
     private val retrofit = Retrofit.Builder()
         .baseUrl("https://itunes.apple.com/")
@@ -48,9 +52,10 @@ class SearchActivity : AppCompatActivity() {
         errorView = findViewById(R.id.error_view)
         historyContainer = findViewById(R.id.history_container)
         clearHistoryButton = findViewById(R.id.clear_history_button)
+        progressBar = findViewById(R.id.progress_bar)
         val backButton = findViewById<ImageView>(R.id.back_to_main_menu)
-        recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
-        historyRecycler = findViewById<RecyclerView>(R.id.history_recycler)
+        recyclerView = findViewById(R.id.recyclerView)
+        historyRecycler = findViewById(R.id.history_recycler)
         val searchInput = findViewById<EditText>(R.id.search_input)
 
         backButton.setOnClickListener {
@@ -75,8 +80,21 @@ class SearchActivity : AppCompatActivity() {
         searchInput.setOnFocusChangeListener { _, _ -> updateHistoryVisibility() }
         searchInput.addTextChangedListener(object : TextWatcher {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                searchText = s.toString()
                 updateHistoryVisibility()
+
+                handler.removeCallbacks(searchRunnable)
+
+                if (searchText.isNotEmpty()) {
+                    progressBar.visibility = View.VISIBLE
+                    handler.postDelayed(searchRunnable, SEARCH_DEBOUNCE_DELAY)
+                } else {
+                    trackList.clear()
+                    trackAdapter.notifyDataSetChanged()
+                    progressBar.visibility = View.GONE
+                }
             }
+
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
             override fun afterTextChanged(s: Editable?) = Unit
         })
@@ -118,16 +136,20 @@ class SearchActivity : AppCompatActivity() {
         errorView.visibility = View.GONE
         emptyView.visibility = View.GONE
 
+        // Скрываем список и показываем прогресс
+        recyclerView.visibility = View.GONE
+        progressBar.visibility = View.VISIBLE
+
         iTunesApi.search(query).enqueue(object : Callback<SearchResponse> {
             override fun onResponse(call: Call<SearchResponse>, response: Response<SearchResponse>) {
+                progressBar.visibility = View.GONE
+
                 if (response.isSuccessful) {
                     val results = response.body()?.results ?: emptyList()
 
                     if (results.isEmpty()) {
                         emptyView.visibility = View.VISIBLE
-                        trackList.clear()
-                        trackAdapter.notifyDataSetChanged()
-                        recyclerView.recycledViewPool.clear()
+                        recyclerView.visibility = View.GONE
                         return
                     }
 
@@ -139,9 +161,10 @@ class SearchActivity : AppCompatActivity() {
                             trackTime = dto.trackTimeMillis?.let { formatTime(it) } ?: "",
                             artworkUrl = dto.artworkUrl100.orEmpty().trim(),
                             collectionName = dto.collectionName.orEmpty().trim(),
-                            releaseDate = dto.releaseDate?.take(4).orEmpty(), // Берем только год
+                            releaseDate = dto.releaseDate?.take(4).orEmpty(),
                             genre = dto.primaryGenreName.orEmpty().trim(),
-                            country = dto.country.orEmpty().trim()
+                            country = dto.country.orEmpty().trim(),
+                            previewUrl = dto.previewUrl.orEmpty().trim()
                         )
                     }
 
@@ -149,17 +172,21 @@ class SearchActivity : AppCompatActivity() {
                     trackList.addAll(formattedTracks)
                     trackAdapter.notifyDataSetChanged()
                     recyclerView.recycledViewPool.clear()
+
+                    // Показать список снова
+                    recyclerView.visibility = View.VISIBLE
                 } else {
                     errorView.visibility = View.VISIBLE
                 }
             }
 
             override fun onFailure(call: Call<SearchResponse>, t: Throwable) {
-                t.printStackTrace()
+                progressBar.visibility = View.GONE
                 errorView.visibility = View.VISIBLE
             }
         })
     }
+
 
     private fun updateHistoryVisibility() {
         val input = findViewById<EditText>(R.id.search_input)
