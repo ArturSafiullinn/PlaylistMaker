@@ -7,13 +7,11 @@
     android:background="@color/settings_background_color"
     android:padding="4dp">
 
-    <!-- Основной вертикальный контейнер -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <!-- Верхняя панель -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -37,7 +35,6 @@
                 style="@style/TitleTextStyle"/>
         </LinearLayout>
 
-        <!-- Поисковая строка -->
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
@@ -59,7 +56,6 @@
                 android:singleLine="true" />
         </RelativeLayout>
 
-        <!-- История поиска -->
         <LinearLayout
             android:id="@+id/history_container"
             android:layout_width="match_parent"
@@ -98,7 +94,6 @@
                 style="@style/SearchActivityButtonStyle" />
         </LinearLayout>
 
-        <!-- Пустой результат -->
         <LinearLayout
             android:id="@+id/empty_view"
             android:orientation="vertical"
@@ -122,7 +117,6 @@
                 tools:text="Very Very Very Long Track Name That Should Be Truncated"/>
         </LinearLayout>
 
-        <!-- Ошибка загрузки -->
         <LinearLayout
             android:id="@+id/error_view"
             android:orientation="vertical"
@@ -153,7 +147,6 @@
                 android:layout_marginBottom="16dp" />
         </LinearLayout>
 
-        <!-- Список треков -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerView"
             android:layout_width="match_parent"
@@ -161,7 +154,6 @@
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
     </LinearLayout>
 
-    <!-- Прогресс-иконка (в центре экрана) -->
     <ImageView
         android:id="@+id/progress_bar"
         android:layout_width="48dp"
