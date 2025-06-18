@@ -19,10 +19,6 @@ import java.util.*
 
 class SearchActivity : AppCompatActivity() {
 
-    companion object {
-        private const val SEARCH_DEBOUNCE_DELAY = 2000L
-    }
-
     private var searchText: String = ""
     private val trackList: ArrayList<Track> = arrayListOf()
     private lateinit var trackAdapter: TrackAdapter
@@ -33,7 +29,7 @@ class SearchActivity : AppCompatActivity() {
     private lateinit var clearHistoryButton: Button
     private lateinit var historyRecycler: RecyclerView
     private lateinit var recyclerView: RecyclerView
-    private lateinit var progressBar: View
+    private lateinit var progressBar: ProgressBar
     private val handler = Handler(Looper.getMainLooper())
     private val searchRunnable = Runnable { searchTracks(searchText) }
 
@@ -52,7 +48,7 @@ class SearchActivity : AppCompatActivity() {
         errorView = findViewById(R.id.error_view)
         historyContainer = findViewById(R.id.history_container)
         clearHistoryButton = findViewById(R.id.clear_history_button)
-        progressBar = findViewById(R.id.progress_bar)
+        progressBar = findViewById(R.id.progress_bar) // Используется класс ProgressBar
         val backButton = findViewById<ImageView>(R.id.back_to_main_menu)
         recyclerView = findViewById(R.id.recyclerView)
         historyRecycler = findViewById(R.id.history_recycler)
@@ -82,7 +78,6 @@ class SearchActivity : AppCompatActivity() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 searchText = s.toString()
                 updateHistoryVisibility()
-
                 handler.removeCallbacks(searchRunnable)
 
                 if (searchText.isNotEmpty()) {
@@ -135,18 +130,14 @@ class SearchActivity : AppCompatActivity() {
     private fun searchTracks(query: String) {
         errorView.visibility = View.GONE
         emptyView.visibility = View.GONE
-
-        // Скрываем список и показываем прогресс
         recyclerView.visibility = View.GONE
         progressBar.visibility = View.VISIBLE
 
         iTunesApi.search(query).enqueue(object : Callback<SearchResponse> {
             override fun onResponse(call: Call<SearchResponse>, response: Response<SearchResponse>) {
                 progressBar.visibility = View.GONE
-
                 if (response.isSuccessful) {
                     val results = response.body()?.results ?: emptyList()
-
                     if (results.isEmpty()) {
                         emptyView.visibility = View.VISIBLE
                         recyclerView.visibility = View.GONE
@@ -172,8 +163,6 @@ class SearchActivity : AppCompatActivity() {
                     trackList.addAll(formattedTracks)
                     trackAdapter.notifyDataSetChanged()
                     recyclerView.recycledViewPool.clear()
-
-                    // Показать список снова
                     recyclerView.visibility = View.VISIBLE
                 } else {
                     errorView.visibility = View.VISIBLE
@@ -186,7 +175,6 @@ class SearchActivity : AppCompatActivity() {
             }
         })
     }
-
 
     private fun updateHistoryVisibility() {
         val input = findViewById<EditText>(R.id.search_input)
@@ -213,6 +201,16 @@ class SearchActivity : AppCompatActivity() {
         super.onRestoreInstanceState(savedInstanceState)
         searchText = savedInstanceState.getString("search_text", "") ?: ""
         findViewById<EditText>(R.id.search_input).setText(searchText)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        handler.removeCallbacks(searchRunnable)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        handler.removeCallbacks(searchRunnable)
     }
 
     private fun EditText.setupClearButtonWithAction() {
@@ -251,5 +249,9 @@ class SearchActivity : AppCompatActivity() {
     private fun hideKeyboard() {
         val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
         imm.hideSoftInputFromWindow(currentFocus?.windowToken, 0)
+    }
+
+    companion object {
+        private const val SEARCH_DEBOUNCE_DELAY = 500L
     }
 }
