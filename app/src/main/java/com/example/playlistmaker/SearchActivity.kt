@@ -12,6 +12,9 @@ import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
+import com.example.playlistmaker.data.dto.SearchResponse
+import com.example.playlistmaker.data.network.ITunesApi
+import com.example.playlistmaker.domain.models.Track
 import retrofit2.*
 import retrofit2.converter.gson.GsonConverterFactory
 import java.text.SimpleDateFormat
