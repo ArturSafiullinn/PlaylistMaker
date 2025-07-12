@@ -1,12 +1,16 @@
-package com.example.playlistmaker
+package com.example.playlistmaker.presentation.ui.main
 
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
-import com.example.playlistmaker.data.settings.SettingsInteractorImpl
+import com.example.playlistmaker.presentation.ui.media.MediaActivity
+import com.example.playlistmaker.R
+import com.example.playlistmaker.presentation.ui.search.SearchActivity
+import com.example.playlistmaker.presentation.ui.settings.SettingsActivity
 import com.example.playlistmaker.domain.api.SettingsInteractor
+import com.example.playlistmaker.presentation.utils.Creator
 
 class MainActivity : AppCompatActivity() {
 
@@ -17,7 +21,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         val sharedPrefs = getSharedPreferences("settings", MODE_PRIVATE)
-        settingsInteractor = SettingsInteractorImpl(sharedPrefs)
+        settingsInteractor = Creator.provideSettingsInteractor(sharedPrefs)
 
         applyTheme(settingsInteractor.isDarkThemeEnabled())
 

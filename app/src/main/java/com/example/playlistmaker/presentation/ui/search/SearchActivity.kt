@@ -1,4 +1,4 @@
-package com.example.playlistmaker
+package com.example.playlistmaker.presentation.ui.search
 
 import android.content.Intent
 import android.os.*
@@ -12,16 +12,14 @@ import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
-import com.example.playlistmaker.data.dto.SearchResponse
-import com.example.playlistmaker.data.network.ITunesApi
-import com.example.playlistmaker.data.network.NetworkClientImpl
-import com.example.playlistmaker.data.network.TrackRepositoryImpl
+import com.example.playlistmaker.R
+import com.example.playlistmaker.presentation.ui.SearchHistory
+import com.example.playlistmaker.presentation.ui.track.TrackActivity
+import com.example.playlistmaker.presentation.ui.search.adapter.TrackAdapter
 import com.example.playlistmaker.domain.api.SearchTracksInteractor
-import com.example.playlistmaker.domain.impl.SearchTracksInteractorImpl
 import com.example.playlistmaker.domain.models.Track
-import retrofit2.*
-import retrofit2.converter.gson.GsonConverterFactory
-import java.text.SimpleDateFormat
+import com.example.playlistmaker.presentation.utils.Creator
+import com.example.playlistmaker.presentation.ui.main.MainActivity
 import java.util.*
 
 class SearchActivity : AppCompatActivity() {
@@ -46,8 +44,7 @@ class SearchActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_search)
 
-        val repository = TrackRepositoryImpl(NetworkClientImpl())
-        searchTracksInteractor = SearchTracksInteractorImpl(repository)
+       searchTracksInteractor = Creator.provideSearchTracksInteractor()
 
         emptyView = findViewById(R.id.empty_view)
         errorView = findViewById(R.id.error_view)

@@ -1,4 +1,4 @@
-package com.example.playlistmaker
+package com.example.playlistmaker.presentation.ui.settings
 
 import android.content.Intent
 import android.net.Uri
@@ -8,8 +8,10 @@ import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
-import com.example.playlistmaker.data.settings.SettingsInteractorImpl
+import com.example.playlistmaker.R
 import com.example.playlistmaker.domain.api.SettingsInteractor
+import com.example.playlistmaker.presentation.utils.Creator
+import com.example.playlistmaker.presentation.ui.main.MainActivity
 import com.google.android.material.switchmaterial.SwitchMaterial
 
 class SettingsActivity : AppCompatActivity() {
@@ -22,7 +24,7 @@ class SettingsActivity : AppCompatActivity() {
         setContentView(R.layout.activity_settings)
 
         val sharedPrefs = getSharedPreferences("settings", MODE_PRIVATE)
-        settingsInteractor = SettingsInteractorImpl(sharedPrefs)
+        settingsInteractor = Creator.provideSettingsInteractor(sharedPrefs)
 
         val isDarkTheme = settingsInteractor.isDarkThemeEnabled()
         AppCompatDelegate.setDefaultNightMode(

@@ -1,13 +1,14 @@
-package com.example.playlistmaker
+package com.example.playlistmaker.presentation.ui.track
 
 import android.os.*
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
+import com.example.playlistmaker.R
 import com.example.playlistmaker.domain.api.AudioPlayerInteractor
-import com.example.playlistmaker.domain.impl.AudioPlayerInteractorImpl
 import com.example.playlistmaker.domain.models.Track
+import com.example.playlistmaker.presentation.utils.Creator
 
 class TrackActivity : AppCompatActivity() {
 
@@ -32,7 +33,7 @@ class TrackActivity : AppCompatActivity() {
 
         track = intent.getParcelableExtra("track") ?: return
 
-        player = AudioPlayerInteractorImpl()
+        player = Creator.provideAudioPlayerInteractor()
 
         findViewById<TextView>(R.id.track_title).text = track.trackName
         findViewById<TextView>(R.id.track_artist).text = track.artistName

@@ -1,4 +1,4 @@
-package com.example.playlistmaker
+package com.example.playlistmaker.presentation.ui
 
 import android.content.Context
 import com.example.playlistmaker.domain.models.Track
