@@ -1,4 +1,4 @@
-package com.example.playlistmaker
+package com.example.playlistmaker.presentation.ui.search
 
 import android.content.Intent
 import android.os.*
@@ -12,9 +12,14 @@ import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
-import retrofit2.*
-import retrofit2.converter.gson.GsonConverterFactory
-import java.text.SimpleDateFormat
+import com.example.playlistmaker.R
+import com.example.playlistmaker.presentation.ui.SearchHistory
+import com.example.playlistmaker.presentation.ui.track.TrackActivity
+import com.example.playlistmaker.presentation.ui.search.adapter.TrackAdapter
+import com.example.playlistmaker.domain.api.SearchTracksInteractor
+import com.example.playlistmaker.domain.models.Track
+import com.example.playlistmaker.presentation.utils.Creator
+import com.example.playlistmaker.presentation.ui.main.MainActivity
 import java.util.*
 
 class SearchActivity : AppCompatActivity() {
@@ -32,17 +37,14 @@ class SearchActivity : AppCompatActivity() {
     private lateinit var progressBar: ProgressBar
     private val handler = Handler(Looper.getMainLooper())
     private val searchRunnable = Runnable { searchTracks(searchText) }
+    private lateinit var searchTracksInteractor: SearchTracksInteractor
 
-    private val retrofit = Retrofit.Builder()
-        .baseUrl("https://itunes.apple.com/")
-        .addConverterFactory(GsonConverterFactory.create())
-        .build()
-
-    private val iTunesApi = retrofit.create(ITunesApi::class.java)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_search)
+
+       searchTracksInteractor = Creator.provideSearchTracksInteractor()
 
         emptyView = findViewById(R.id.empty_view)
         errorView = findViewById(R.id.error_view)
@@ -133,48 +135,29 @@ class SearchActivity : AppCompatActivity() {
         recyclerView.visibility = View.GONE
         progressBar.visibility = View.VISIBLE
 
-        iTunesApi.search(query).enqueue(object : Callback<SearchResponse> {
-            override fun onResponse(call: Call<SearchResponse>, response: Response<SearchResponse>) {
+        searchTracksInteractor.searchTracks(query) { result ->
+            runOnUiThread {
                 progressBar.visibility = View.GONE
-                if (response.isSuccessful) {
-                    val results = response.body()?.results ?: emptyList()
-                    if (results.isEmpty()) {
-                        emptyView.visibility = View.VISIBLE
-                        recyclerView.visibility = View.GONE
-                        return
+
+                result
+                    .onSuccess { tracks ->
+                        if (tracks.isEmpty()) {
+                            emptyView.visibility = View.VISIBLE
+                        } else {
+                            trackList.clear()
+                            trackList.addAll(tracks)
+                            trackAdapter.notifyDataSetChanged()
+                            recyclerView.recycledViewPool.clear()
+                            recyclerView.visibility = View.VISIBLE
+                        }
                     }
-
-                    val formattedTracks = results.map { dto ->
-                        Track(
-                            trackId = dto.trackId ?: 0,
-                            trackName = dto.trackName.orEmpty().trim(),
-                            artistName = dto.artistName.orEmpty().trim(),
-                            trackTime = dto.trackTimeMillis?.let { formatTime(it) } ?: "",
-                            artworkUrl = dto.artworkUrl100.orEmpty().trim(),
-                            collectionName = dto.collectionName.orEmpty().trim(),
-                            releaseDate = dto.releaseDate?.take(4).orEmpty(),
-                            genre = dto.primaryGenreName.orEmpty().trim(),
-                            country = dto.country.orEmpty().trim(),
-                            previewUrl = dto.previewUrl.orEmpty().trim()
-                        )
+                    .onFailure {
+                        errorView.visibility = View.VISIBLE
                     }
-
-                    trackList.clear()
-                    trackList.addAll(formattedTracks)
-                    trackAdapter.notifyDataSetChanged()
-                    recyclerView.recycledViewPool.clear()
-                    recyclerView.visibility = View.VISIBLE
-                } else {
-                    errorView.visibility = View.VISIBLE
-                }
             }
-
-            override fun onFailure(call: Call<SearchResponse>, t: Throwable) {
-                progressBar.visibility = View.GONE
-                errorView.visibility = View.VISIBLE
-            }
-        })
+        }
     }
+
 
     private fun updateHistoryVisibility() {
         val input = findViewById<EditText>(R.id.search_input)
@@ -186,10 +169,6 @@ class SearchActivity : AppCompatActivity() {
         } else {
             historyContainer.visibility = View.GONE
         }
-    }
-
-    private fun formatTime(ms: Long): String {
-        return SimpleDateFormat("mm:ss", Locale.getDefault()).format(ms)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
