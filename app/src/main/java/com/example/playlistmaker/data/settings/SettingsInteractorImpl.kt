@@ -1,6 +1,7 @@
 package com.example.playlistmaker.data.settings
 
 import android.content.SharedPreferences
+import android.util.Log
 import com.example.playlistmaker.domain.api.SettingsInteractor
 
 class SettingsInteractorImpl(
@@ -16,6 +17,7 @@ class SettingsInteractorImpl(
     }
 
     override fun setDarkThemeEnabled(enabled: Boolean) {
+        Log.d("SetDarkTheme", "Интерактор записал значение в SharedPreferences: $enabled")
         sharedPreferences.edit().putBoolean(DARK_THEME_KEY, enabled).apply()
     }
 }

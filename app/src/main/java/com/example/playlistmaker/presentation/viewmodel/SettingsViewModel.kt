@@ -1,5 +1,6 @@
 package com.example.playlistmaker.presentation.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -17,7 +18,9 @@ class SettingsViewModel(
     }
 
     fun setDarkTheme(enabled: Boolean) {
+        Log.d("SetDarkTheme", "Команда пошла в SettingsViewModel, установить темную тему: $enabled")
         settingsInteractor.setDarkThemeEnabled(enabled)
         _themeState.value = enabled
+        Log.d("SetDarkTheme", "Значение LiveData themeState теперь: $enabled")
     }
 }
