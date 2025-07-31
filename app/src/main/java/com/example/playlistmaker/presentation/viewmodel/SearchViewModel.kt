@@ -5,9 +5,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.playlistmaker.domain.api.SearchTracksInteractor
 import com.example.playlistmaker.presentation.models.SearchScreenState
-import kotlinx.coroutines.Job
-import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.launch
 
 
 class SearchViewModel(

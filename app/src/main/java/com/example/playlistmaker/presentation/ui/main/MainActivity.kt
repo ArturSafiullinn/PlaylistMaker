@@ -9,13 +9,16 @@ import com.example.playlistmaker.databinding.ActivityMainBinding
 import com.example.playlistmaker.presentation.ui.media.MediaActivity
 import com.example.playlistmaker.presentation.ui.search.SearchActivity
 import com.example.playlistmaker.presentation.ui.settings.SettingsActivity
+import com.example.playlistmaker.presentation.utils.Creator
+import com.example.playlistmaker.presentation.viewmodel.MainViewModel
+import com.example.playlistmaker.presentation.viewmodel.MainViewModelFactory
 import com.example.playlistmaker.presentation.viewmodel.SettingsViewModel
 import com.example.playlistmaker.presentation.viewmodel.SettingsViewModelFactory
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
-    private val viewModel: SettingsViewModel by viewModels { SettingsViewModelFactory(this) }
+    private val viewModel: MainViewModel by viewModels { MainViewModelFactory(this) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

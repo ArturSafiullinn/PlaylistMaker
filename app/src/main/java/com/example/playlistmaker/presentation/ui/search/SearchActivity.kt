@@ -67,7 +67,7 @@ class SearchActivity : AppCompatActivity() {
 
     private fun initListeners() {
         binding.backToMainMenu.setOnClickListener {
-            startActivity(Intent(this, MainActivity::class.java))
+            this.onBackPressedDispatcher.onBackPressed()
         }
 
         binding.searchInput.setOnEditorActionListener { _, actionId, _ ->

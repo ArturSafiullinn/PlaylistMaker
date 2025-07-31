@@ -3,7 +3,6 @@ package com.example.playlistmaker.presentation.ui.settings
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -24,12 +23,24 @@ class SettingsActivity : AppCompatActivity() {
         binding = ActivitySettingsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        viewModel.themeState.observe(this) { isDarkTheme ->
+            binding.themeSwitch.setOnCheckedChangeListener(null)
+            binding.themeSwitch.isChecked = isDarkTheme
+            binding.themeSwitch.setOnCheckedChangeListener { _, isChecked ->
+                viewModel.setDarkTheme(isChecked)
+            }
+            AppCompatDelegate.setDefaultNightMode(
+                if (isDarkTheme) AppCompatDelegate.MODE_NIGHT_YES
+                else AppCompatDelegate.MODE_NIGHT_NO
+            )
+        }
+
         binding.themeSwitch.setOnCheckedChangeListener { _, isChecked ->
             viewModel.setDarkTheme(isChecked)
         }
 
         binding.backToMainMenu.setOnClickListener {
-            startActivity(Intent(this, MainActivity::class.java))
+            this.onBackPressedDispatcher.onBackPressed()
         }
 
         binding.shareButton.setOnClickListener {

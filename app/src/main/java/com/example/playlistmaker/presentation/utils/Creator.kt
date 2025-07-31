@@ -3,7 +3,7 @@ package com.example.playlistmaker.presentation.utils
 import android.content.SharedPreferences
 import com.example.playlistmaker.data.network.NetworkClientImpl
 import com.example.playlistmaker.data.network.TrackRepositoryImpl
-import com.example.playlistmaker.data.settings.SettingsInteractorImpl
+import com.example.playlistmaker.domain.impl.SettingsInteractorImpl
 import com.example.playlistmaker.domain.api.AudioPlayerInteractor
 import com.example.playlistmaker.domain.api.SearchTracksInteractor
 import com.example.playlistmaker.domain.api.SettingsInteractor

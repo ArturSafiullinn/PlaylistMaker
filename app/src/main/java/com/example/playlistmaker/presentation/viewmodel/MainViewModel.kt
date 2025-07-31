@@ -5,7 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.playlistmaker.domain.api.SettingsInteractor
 
-class SettingsViewModel(
+class MainViewModel(
     private val settingsInteractor: SettingsInteractor
 ) : ViewModel() {
 
@@ -16,9 +16,5 @@ class SettingsViewModel(
         settingsInteractor.observeThemeChanges { isDark ->
             _themeState.postValue(isDark)
         }
-    }
-
-    fun setDarkTheme(enabled: Boolean) {
-        settingsInteractor.setDarkThemeEnabled(enabled)
     }
 }
