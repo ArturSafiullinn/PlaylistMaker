@@ -2,46 +2,46 @@ package com.example.playlistmaker.presentation.ui.main
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Button
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import com.example.playlistmaker.databinding.ActivityMainBinding
 import com.example.playlistmaker.presentation.ui.media.MediaActivity
-import com.example.playlistmaker.R
 import com.example.playlistmaker.presentation.ui.search.SearchActivity
 import com.example.playlistmaker.presentation.ui.settings.SettingsActivity
-import com.example.playlistmaker.domain.api.SettingsInteractor
 import com.example.playlistmaker.presentation.utils.Creator
+import com.example.playlistmaker.presentation.viewmodel.MainViewModel
+import com.example.playlistmaker.presentation.viewmodel.MainViewModelFactory
+import com.example.playlistmaker.presentation.viewmodel.SettingsViewModel
+import com.example.playlistmaker.presentation.viewmodel.SettingsViewModelFactory
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var settingsInteractor: SettingsInteractor
+    private lateinit var binding: ActivityMainBinding
+    private val viewModel: MainViewModel by viewModels { MainViewModelFactory(this) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        val sharedPrefs = getSharedPreferences("settings", MODE_PRIVATE)
-        settingsInteractor = Creator.provideSettingsInteractor(sharedPrefs)
+        viewModel.themeState.observe(this) { isDarkTheme ->
+            AppCompatDelegate.setDefaultNightMode(
+                if (isDarkTheme) AppCompatDelegate.MODE_NIGHT_YES
+                else AppCompatDelegate.MODE_NIGHT_NO
+            )
+        }
 
-        applyTheme(settingsInteractor.isDarkThemeEnabled())
-
-        findViewById<Button>(R.id.search).setOnClickListener {
+        binding.search.setOnClickListener {
             startActivity(Intent(this, SearchActivity::class.java))
         }
 
-        findViewById<Button>(R.id.media).setOnClickListener {
+        binding.media.setOnClickListener {
             startActivity(Intent(this, MediaActivity::class.java))
         }
 
-        findViewById<Button>(R.id.settings).setOnClickListener {
+        binding.settings.setOnClickListener {
             startActivity(Intent(this, SettingsActivity::class.java))
         }
-    }
-
-    private fun applyTheme(isDarkTheme: Boolean) {
-        AppCompatDelegate.setDefaultNightMode(
-            if (isDarkTheme) AppCompatDelegate.MODE_NIGHT_YES
-            else AppCompatDelegate.MODE_NIGHT_NO
-        )
     }
 }

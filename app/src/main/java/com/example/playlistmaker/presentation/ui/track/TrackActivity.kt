@@ -1,83 +1,88 @@
 package com.example.playlistmaker.presentation.ui.track
 
-import android.os.*
-import android.widget.ImageView
-import android.widget.TextView
+import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.example.playlistmaker.R
-import com.example.playlistmaker.domain.api.AudioPlayerInteractor
+import com.example.playlistmaker.databinding.ActivityTrackBinding
 import com.example.playlistmaker.domain.models.Track
-import com.example.playlistmaker.presentation.utils.Creator
+import com.example.playlistmaker.presentation.viewmodel.TrackViewModel
+import com.example.playlistmaker.presentation.viewmodel.TrackViewModelFactory
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 class TrackActivity : AppCompatActivity() {
 
-    private lateinit var playButton: ImageView
-    private lateinit var playbackTimeTextView: TextView
+    private lateinit var binding: ActivityTrackBinding
     private lateinit var track: Track
-    private lateinit var player: AudioPlayerInteractor
-
+    private val viewModel: TrackViewModel by viewModels { TrackViewModelFactory() }
     private val handler = Handler(Looper.getMainLooper())
     private val updateTimeRunnable = object : Runnable {
         override fun run() {
-            if (player.isPlaying()) {
-                playbackTimeTextView.text = formatTime(player.getCurrentPosition())
-                handler.postDelayed(this, 1000)
-            }
+            viewModel.updatePlaybackTime()
+            handler.postDelayed(this, 1000)
         }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_track)
+        binding = ActivityTrackBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         track = intent.getParcelableExtra("track") ?: return
 
-        player = Creator.provideAudioPlayerInteractor()
+        viewModel.preparePlayer(track.previewUrl)
 
-        findViewById<TextView>(R.id.track_title).text = track.trackName
-        findViewById<TextView>(R.id.track_artist).text = track.artistName
-        findViewById<TextView>(R.id.value_album).text = track.collectionName
-        findViewById<TextView>(R.id.value_year).text = track.releaseDate
-        findViewById<TextView>(R.id.value_genre).text = track.genre
-        findViewById<TextView>(R.id.value_country).text = track.country
-        playbackTimeTextView = findViewById(R.id.playback_time)
-        playbackTimeTextView.text = formatTime(0)
+        with(binding) {
+            trackTitle.text = track.trackName
+            trackArtist.text = track.artistName
+            valueAlbum.text = track.collectionName
+            valueYear.text = track.releaseDate
+            valueGenre.text = track.genre
+            valueCountry.text = track.country
+            playbackTime.text = formatTime(0)
+            playButton.isEnabled = false
 
-        playButton = findViewById(R.id.play_button)
-        playButton.isEnabled = false
+            Glide.with(this@TrackActivity)
+                .load(track.artworkUrl.replace("100x100bb.jpg", "512x512bb.jpg"))
+                .placeholder(R.drawable.placeholder)
+                .into(albumCover)
 
-        Glide.with(this)
-            .load(track.artworkUrl.replace("100x100bb.jpg", "512x512bb.jpg"))
-            .placeholder(R.drawable.placeholder)
-            .into(findViewById(R.id.album_cover))
+            backButton.setOnClickListener { finish() }
 
-        findViewById<ImageView>(R.id.back_button).setOnClickListener {
-            finish()
+            playButton.setOnClickListener {
+                viewModel.togglePlayback()
+            }
         }
 
-        player.prepare(
-            url = track.previewUrl,
-            onReady = {
-                playButton.isEnabled = true
-                playButton.setImageResource(R.drawable.play_button)
-            },
-            onCompletion = {
-                playButton.setImageResource(R.drawable.play_button)
-                handler.removeCallbacks(updateTimeRunnable)
-                playbackTimeTextView.text = formatTime(0)
-            }
-        )
-
-        playButton.setOnClickListener {
-            if (player.isPlaying()) {
-                player.pause()
-                playButton.setImageResource(R.drawable.play_button)
-                handler.removeCallbacks(updateTimeRunnable)
-            } else {
-                player.play()
-                playButton.setImageResource(R.drawable.pause_button)
-                handler.post(updateTimeRunnable)
+        lifecycleScope.launch {
+            viewModel.uiState.collectLatest { state ->
+                when (state) {
+                    is TrackViewModel.UiState.Ready -> {
+                        binding.playButton.isEnabled = true
+                        binding.playButton.setImageResource(R.drawable.play_button)
+                    }
+                    is TrackViewModel.UiState.Playing -> {
+                        binding.playButton.setImageResource(R.drawable.pause_button)
+                        handler.post(updateTimeRunnable)
+                    }
+                    is TrackViewModel.UiState.Paused -> {
+                        binding.playButton.setImageResource(R.drawable.play_button)
+                        handler.removeCallbacks(updateTimeRunnable)
+                    }
+                    is TrackViewModel.UiState.Finished -> {
+                        binding.playButton.setImageResource(R.drawable.play_button)
+                        handler.removeCallbacks(updateTimeRunnable)
+                        binding.playbackTime.text = formatTime(0)
+                    }
+                    is TrackViewModel.UiState.TimeUpdate -> {
+                        binding.playbackTime.text = formatTime(state.millis)
+                    }
+                }
             }
         }
     }
@@ -85,7 +90,7 @@ class TrackActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         handler.removeCallbacks(updateTimeRunnable)
-        player.release()
+        viewModel.releasePlayer()
     }
 
     private fun formatTime(millis: Int): String {
