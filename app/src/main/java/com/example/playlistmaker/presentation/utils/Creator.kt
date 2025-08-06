@@ -5,6 +5,7 @@ import android.content.SharedPreferences
 import com.example.playlistmaker.data.history.SearchHistoryRepositoryImpl
 import com.example.playlistmaker.data.network.NetworkClientImpl
 import com.example.playlistmaker.data.network.TrackRepositoryImpl
+import com.example.playlistmaker.data.player.AudioPlayerRepositoryImpl
 import com.example.playlistmaker.domain.impl.SettingsInteractorImpl
 import com.example.playlistmaker.domain.api.AudioPlayerInteractor
 import com.example.playlistmaker.domain.api.SearchHistoryInteractor
@@ -29,8 +30,10 @@ object Creator {
     }
 
     fun provideAudioPlayerInteractor(): AudioPlayerInteractor {
-        return AudioPlayerInteractorImpl()
+        val repository = AudioPlayerRepositoryImpl()
+        return AudioPlayerInteractorImpl(repository)
     }
+
     fun provideSearchHistoryInteractor(context: Context): SearchHistoryInteractor {
         val repository = SearchHistoryRepositoryImpl(context)
         return SearchHistoryInteractorImpl(repository)

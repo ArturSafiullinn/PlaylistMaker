@@ -134,8 +134,13 @@ class SearchActivity : AppCompatActivity() {
 
                 is SearchScreenState.History -> {
                     if (binding.searchInput.hasFocus() && binding.searchInput.text.isEmpty()) {
-                        binding.historyContainer.visibility = View.VISIBLE
-                        historyAdapter.updateData(state.tracks)
+                        if (state.tracks.isNotEmpty()) {
+                            binding.historyContainer.visibility = View.VISIBLE
+                            historyAdapter.updateData(state.tracks)
+                        } else {
+                            binding.historyContainer.visibility = View.GONE
+                        }
+
                     } else {
                         binding.historyContainer.visibility = View.GONE
                     }
