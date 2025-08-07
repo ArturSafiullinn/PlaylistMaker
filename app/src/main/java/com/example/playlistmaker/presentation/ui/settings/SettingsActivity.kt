@@ -3,58 +3,55 @@ package com.example.playlistmaker.presentation.ui.settings
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.widget.ImageView
-import android.widget.LinearLayout
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import com.example.playlistmaker.R
-import com.example.playlistmaker.domain.api.SettingsInteractor
-import com.example.playlistmaker.presentation.utils.Creator
+import com.example.playlistmaker.databinding.ActivitySettingsBinding
 import com.example.playlistmaker.presentation.ui.main.MainActivity
-import com.google.android.material.switchmaterial.SwitchMaterial
+import com.example.playlistmaker.presentation.viewmodel.SettingsViewModel
+import com.example.playlistmaker.presentation.viewmodel.SettingsViewModelFactory
 
 class SettingsActivity : AppCompatActivity() {
 
-    private lateinit var themeSwitch: SwitchMaterial
-    private lateinit var settingsInteractor: SettingsInteractor
+    private lateinit var binding: ActivitySettingsBinding
+    private val viewModel: SettingsViewModel by viewModels { SettingsViewModelFactory(this) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_settings)
+        binding = ActivitySettingsBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        val sharedPrefs = getSharedPreferences("settings", MODE_PRIVATE)
-        settingsInteractor = Creator.provideSettingsInteractor(sharedPrefs)
-
-        val isDarkTheme = settingsInteractor.isDarkThemeEnabled()
-        AppCompatDelegate.setDefaultNightMode(
-            if (isDarkTheme) AppCompatDelegate.MODE_NIGHT_YES
-            else AppCompatDelegate.MODE_NIGHT_NO
-        )
-
-        findViewById<ImageView>(R.id.back_to_main_menu).setOnClickListener {
-            startActivity(Intent(this, MainActivity::class.java))
-        }
-
-        themeSwitch = findViewById(R.id.theme_switch)
-        themeSwitch.isChecked = isDarkTheme
-        themeSwitch.setOnCheckedChangeListener { _, isChecked ->
+        viewModel.themeState.observe(this) { isDarkTheme ->
+            binding.themeSwitch.setOnCheckedChangeListener(null)
+            binding.themeSwitch.isChecked = isDarkTheme
+            binding.themeSwitch.setOnCheckedChangeListener { _, isChecked ->
+                viewModel.setDarkTheme(isChecked)
+            }
             AppCompatDelegate.setDefaultNightMode(
-                if (isChecked) AppCompatDelegate.MODE_NIGHT_YES
+                if (isDarkTheme) AppCompatDelegate.MODE_NIGHT_YES
                 else AppCompatDelegate.MODE_NIGHT_NO
             )
-            settingsInteractor.setDarkThemeEnabled(isChecked)
         }
 
-        findViewById<LinearLayout>(R.id.share_button).setOnClickListener {
+        binding.themeSwitch.setOnCheckedChangeListener { _, isChecked ->
+            viewModel.setDarkTheme(isChecked)
+        }
+
+        binding.backToMainMenu.setOnClickListener {
+            this.onBackPressedDispatcher.onBackPressed()
+        }
+
+        binding.shareButton.setOnClickListener {
             shareApp()
         }
 
-        findViewById<LinearLayout>(R.id.support_button).setOnClickListener {
+        binding.supportButton.setOnClickListener {
             sendSupportEmail()
         }
 
-        findViewById<LinearLayout>(R.id.agreement_button).setOnClickListener {
+        binding.agreementButton.setOnClickListener {
             openAgreement()
         }
     }

@@ -1,42 +1,19 @@
 package com.example.playlistmaker.domain.impl
 
-import android.media.MediaPlayer
 import com.example.playlistmaker.domain.api.AudioPlayerInteractor
+import com.example.playlistmaker.domain.api.AudioPlayerRepository
 
-class AudioPlayerInteractorImpl : AudioPlayerInteractor {
-    private val mediaPlayer = MediaPlayer()
-    private var isPrepared = false
+class AudioPlayerInteractorImpl(
+    private val repository: AudioPlayerRepository
+) : AudioPlayerInteractor {
 
     override fun prepare(url: String, onReady: () -> Unit, onCompletion: () -> Unit) {
-        mediaPlayer.setDataSource(url)
-        mediaPlayer.prepareAsync()
-        mediaPlayer.setOnPreparedListener {
-            isPrepared = true
-            onReady()
-        }
-        mediaPlayer.setOnCompletionListener {
-            isPrepared = true
-            onCompletion()
-        }
+        repository.prepare(url, onReady, onCompletion)
     }
-
-    override fun play() {
-        if (isPrepared && !mediaPlayer.isPlaying) {
-            mediaPlayer.start()
-        }
-    }
-
-    override fun pause() {
-        if (mediaPlayer.isPlaying) {
-            mediaPlayer.pause()
-        }
-    }
-
-    override fun getCurrentPosition(): Int = mediaPlayer.currentPosition
-
-    override fun isPlaying(): Boolean = mediaPlayer.isPlaying
-
-    override fun release() {
-        mediaPlayer.release()
-    }
+    override fun play() = repository.play()
+    override fun pause() = repository.pause()
+    override fun stop() = repository.stop()
+    override fun isPlaying(): Boolean = repository.isPlaying()
+    override fun getCurrentPosition(): Int = repository.getCurrentPosition()
+    override fun release() = repository.release()
 }
