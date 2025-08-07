@@ -29,7 +29,5 @@ val platformModule = module {
             .build()
     }
 
-    single<ITunesApi> {
-        get<Retrofit>().create(ITunesApi::class.java)
-    }
+    single<ITunesApi> { get<Retrofit>().create(ITunesApi::class.java) }
 }

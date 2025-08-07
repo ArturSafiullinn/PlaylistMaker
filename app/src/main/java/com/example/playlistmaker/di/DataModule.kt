@@ -19,11 +19,4 @@ val dataModule = module {
 
     single<NetworkClient> { NetworkClientImpl(get()) }
     single<TrackRepository> { TrackRepositoryImpl(get()) }
-
-    single<ITunesApi> {
-        Retrofit.Builder()
-            .baseUrl("https://itunes.apple.com")
-            .build()
-            .create(ITunesApi::class.java)
-    }
 }

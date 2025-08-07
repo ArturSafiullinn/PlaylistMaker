@@ -3,7 +3,6 @@ package com.example.playlistmaker.presentation.ui.track
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
@@ -11,15 +10,16 @@ import com.example.playlistmaker.R
 import com.example.playlistmaker.databinding.ActivityTrackBinding
 import com.example.playlistmaker.domain.models.Track
 import com.example.playlistmaker.presentation.viewmodel.TrackViewModel
-import com.example.playlistmaker.presentation.viewmodel.TrackViewModelFactory
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import org.koin.androidx.viewmodel.ext.android.viewModel
+
 
 class TrackActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityTrackBinding
     private lateinit var track: Track
-    private val viewModel: TrackViewModel by viewModels { TrackViewModelFactory() }
+    private val viewModel: TrackViewModel by viewModel()
     private val handler = Handler(Looper.getMainLooper())
     private val updateTimeRunnable = object : Runnable {
         override fun run() {

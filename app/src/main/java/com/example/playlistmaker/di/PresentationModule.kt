@@ -9,19 +9,11 @@ import org.koin.dsl.module
 
 val presentationModule = module {
 
-    viewModel {
-        MainViewModel(get())
-    }
+    viewModel { MainViewModel(get()) }
 
-    viewModel {
-        SearchViewModel(get(), get())
-    }
+    viewModel { SearchViewModel(get(), get()) }
 
-    viewModel {
-        SettingsViewModel(get())
-    }
+    viewModel { SettingsViewModel(get()) }
 
-    viewModel {
-        TrackViewModel(get())
-    }
+    viewModel { TrackViewModel(get()) }
 }

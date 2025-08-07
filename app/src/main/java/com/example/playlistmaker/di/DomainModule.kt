@@ -6,19 +6,11 @@ import org.koin.dsl.module
 
 val domainModule = module {
 
-    single<AudioPlayerInteractor> {
-        AudioPlayerInteractorImpl(get())
-    }
+    single<AudioPlayerInteractor> { AudioPlayerInteractorImpl(get()) }
 
-    single<SearchHistoryInteractor> {
-        SearchHistoryInteractorImpl(get())
-    }
+    single<SearchHistoryInteractor> { SearchHistoryInteractorImpl(get()) }
 
-    single<SearchTracksInteractor> {
-        SearchTracksInteractorImpl(get())
-    }
+    single<SearchTracksInteractor> { SearchTracksInteractorImpl(get()) }
 
-    single<SettingsInteractor> {
-        SettingsInteractorImpl(get())
-    }
+    single<SettingsInteractor> { SettingsInteractorImpl(get()) }
 }

@@ -8,24 +8,21 @@ import com.example.playlistmaker.di.presentationModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.GlobalContext.startKoin
 
-class App : Application() {
+class PlaylistMakerApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
 
         startKoin {
-            androidContext(this@App)
-            startKoin {
-                androidContext(this@App)
-                modules(
-                    listOf(
-                        platformModule,
-                        dataModule,
-                        domainModule,
-                        presentationModule
-                    )
+            androidContext(this@PlaylistMakerApp)
+            modules(
+                listOf(
+                    platformModule,
+                    dataModule,
+                    domainModule,
+                    presentationModule
                 )
-            }
+            )
         }
     }
 }
