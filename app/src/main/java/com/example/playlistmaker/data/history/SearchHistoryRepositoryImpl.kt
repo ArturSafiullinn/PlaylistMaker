@@ -7,7 +7,11 @@ import com.example.playlistmaker.domain.models.Track
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 
-class SearchHistoryRepositoryImpl(context: Context) : SearchHistoryRepository {
+class SearchHistoryRepositoryImpl(
+    private val prefs: SharedPreferences,
+    private val gson: Gson
+) : SearchHistoryRepository {
+
 
     companion object {
         private const val PREFS_NAME = "search_history"
