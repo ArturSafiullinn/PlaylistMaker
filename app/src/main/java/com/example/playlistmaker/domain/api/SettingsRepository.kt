@@ -1,6 +1,6 @@
 package com.example.playlistmaker.domain.api
 
-interface SettingsInteractor {
+interface SettingsRepository {
     fun isDarkThemeEnabled(): Boolean
     fun setDarkThemeEnabled(enabled: Boolean)
     fun themeEnabledFlow(): kotlinx.coroutines.flow.Flow<Boolean>
