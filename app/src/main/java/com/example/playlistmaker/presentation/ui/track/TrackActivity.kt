@@ -8,17 +8,16 @@ import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.example.playlistmaker.R
 import com.example.playlistmaker.databinding.ActivityTrackBinding
-import com.example.playlistmaker.domain.models.Track
 import com.example.playlistmaker.presentation.viewmodel.TrackViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
-
+import com.example.playlistmaker.presentation.models.UiTrack
 
 class TrackActivity : AppCompatActivity() {
 
+    private lateinit var track: UiTrack
     private lateinit var binding: ActivityTrackBinding
-    private lateinit var track: Track
     private val viewModel: TrackViewModel by viewModel()
     private val handler = Handler(Looper.getMainLooper())
     private val updateTimeRunnable = object : Runnable {
@@ -33,9 +32,14 @@ class TrackActivity : AppCompatActivity() {
         binding = ActivityTrackBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        track = intent.getParcelableExtra("track") ?: return
+        track = intent.getParcelableExtra("track") ?: run {
+            finish()
+            return
+        }
 
-        viewModel.preparePlayer(track.previewUrl)
+        track.previewUrl?.let { url ->
+            viewModel.preparePlayer(url)
+        }
 
         with(binding) {
             trackTitle.text = track.trackName
