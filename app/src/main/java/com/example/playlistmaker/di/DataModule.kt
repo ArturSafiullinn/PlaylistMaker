@@ -11,7 +11,7 @@ import org.koin.dsl.module
 
 val dataModule = module {
 
-    single<AudioPlayerRepository> { AudioPlayerRepositoryImpl(get()) }
+    factory<AudioPlayerRepository> { AudioPlayerRepositoryImpl(get()) }
     single<SearchHistoryRepository> { SearchHistoryRepositoryImpl(get(), get()) }
     single<NetworkClient> { NetworkClientImpl(get()) }
     single<TrackRepository> { TrackRepositoryImpl(get()) }

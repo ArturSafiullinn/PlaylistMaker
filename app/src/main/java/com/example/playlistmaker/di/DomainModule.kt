@@ -6,7 +6,7 @@ import org.koin.dsl.module
 
 val domainModule = module {
 
-    single<AudioPlayerInteractor> { AudioPlayerInteractorImpl(get()) }
+    factory<AudioPlayerInteractor> { AudioPlayerInteractorImpl(get()) }
 
     single<SearchHistoryInteractor> { SearchHistoryInteractorImpl(get()) }
 

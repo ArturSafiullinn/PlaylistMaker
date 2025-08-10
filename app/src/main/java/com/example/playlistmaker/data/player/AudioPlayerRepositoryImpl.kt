@@ -4,19 +4,18 @@ import android.media.MediaPlayer
 import com.example.playlistmaker.domain.api.AudioPlayerRepository
 
 class AudioPlayerRepositoryImpl(
-    private val mediaPlayer: MediaPlayer
+    private var mediaPlayer: MediaPlayer
 ) : AudioPlayerRepository {
 
-    override fun prepare(
-        url: String,
-        onReady: () -> Unit,
-        onCompletion: () -> Unit
-    ) {
-        mediaPlayer.reset()
-        mediaPlayer.setDataSource(url)
-        mediaPlayer.setOnPreparedListener { onReady() }
-        mediaPlayer.setOnCompletionListener { onCompletion() }
-        mediaPlayer.prepareAsync()
+    override fun prepare(url: String, onReady: () -> Unit, onCompletion: () -> Unit) {
+        release()
+        mediaPlayer = MediaPlayer().apply {
+            setDataSource(url)
+            setOnPreparedListener { onReady() }
+            setOnCompletionListener { onCompletion() }
+            setOnErrorListener { _, _, _ -> release(); true }
+            prepareAsync()
+        }
     }
 
     override fun play() {

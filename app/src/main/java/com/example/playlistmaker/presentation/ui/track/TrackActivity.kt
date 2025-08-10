@@ -91,6 +91,11 @@ class TrackActivity : AppCompatActivity() {
         }
     }
 
+    override fun onPause() {
+        super.onPause()
+        handler.removeCallbacks(updateTimeRunnable)
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         handler.removeCallbacks(updateTimeRunnable)
