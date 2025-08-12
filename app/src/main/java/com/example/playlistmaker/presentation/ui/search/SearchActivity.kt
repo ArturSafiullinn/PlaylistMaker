@@ -1,5 +1,6 @@
 package com.example.playlistmaker.presentation.ui.search
 
+import com.example.playlistmaker.domain.models.Track as DomainTrack
 import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
@@ -9,25 +10,28 @@ import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.example.playlistmaker.R
 import com.example.playlistmaker.databinding.ActivitySearchBinding
-import com.example.playlistmaker.domain.models.Track
+import com.example.playlistmaker.presentation.mappers.toUi
 import com.example.playlistmaker.presentation.models.SearchScreenState
+import com.example.playlistmaker.presentation.models.UiTrack
 import com.example.playlistmaker.presentation.ui.search.adapter.TrackAdapter
 import com.example.playlistmaker.presentation.ui.track.TrackActivity
 import com.example.playlistmaker.presentation.viewmodel.SearchViewModel
-import com.example.playlistmaker.presentation.viewmodel.SearchViewModelFactory
+import org.koin.androidx.viewmodel.ext.android.viewModel
+
 
 class SearchActivity : AppCompatActivity() {
 
+    companion object {
+        private const val EXTRA_TRACK = "track"
+    }
     private lateinit var binding: ActivitySearchBinding
     private lateinit var trackAdapter: TrackAdapter
     private lateinit var historyAdapter: TrackAdapter
-
-    private val viewModel: SearchViewModel by viewModels { SearchViewModelFactory(this) }
+    private val viewModel: SearchViewModel by viewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,9 +61,10 @@ class SearchActivity : AppCompatActivity() {
         binding.historyRecycler.adapter = historyAdapter
     }
 
-    private fun openTrackDetails(track: Track) {
+    private fun openTrackDetails(track: DomainTrack) {
+        val uiTrack: UiTrack = track.toUi()
         val intent = Intent(this, TrackActivity::class.java)
-        intent.putExtra("track", track)
+            .putExtra(EXTRA_TRACK, uiTrack)
         startActivity(intent)
     }
 

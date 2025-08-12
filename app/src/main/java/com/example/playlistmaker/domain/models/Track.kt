@@ -1,8 +1,8 @@
 package com.example.playlistmaker.domain.models
-import android.os.Parcelable
-import kotlinx.parcelize.Parcelize
 
-@Parcelize
+import java.io.Serializable
+
+
 data class Track(
     val trackId: Int,
     val trackName: String,
@@ -13,4 +13,4 @@ data class Track(
     val releaseDate: String = "",
     val genre: String = "",
     val country: String = "",
-    val previewUrl: String) : Parcelable
+    val previewUrl: String) : Serializable

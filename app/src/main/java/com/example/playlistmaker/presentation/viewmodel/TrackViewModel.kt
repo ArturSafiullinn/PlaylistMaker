@@ -53,4 +53,9 @@ class TrackViewModel(
     fun releasePlayer() {
         player.release()
     }
+
+    override fun onCleared() {
+        player.release()
+        super.onCleared()
+    }
 }

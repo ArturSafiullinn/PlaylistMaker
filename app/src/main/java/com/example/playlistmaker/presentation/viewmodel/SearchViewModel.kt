@@ -1,5 +1,6 @@
 package com.example.playlistmaker.presentation.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -16,6 +17,9 @@ class SearchViewModel(
     private val searchInteractor: SearchTracksInteractor,
     private val historyInteractor: SearchHistoryInteractor
 ) : ViewModel() {
+    init {
+        Log.d("SearchViewModel", "SearchViewModel created with $searchInteractor and $historyInteractor")
+    }
 
     private val _state = MutableLiveData<SearchScreenState>()
     val state: LiveData<SearchScreenState> = _state
