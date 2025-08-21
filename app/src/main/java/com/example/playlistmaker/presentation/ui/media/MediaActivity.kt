@@ -10,11 +10,16 @@ import com.google.android.material.tabs.TabLayoutMediator
 class MediaActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMediaBinding
     private lateinit var tabMediator: TabLayoutMediator
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMediaBinding.inflate(layoutInflater)
         setContentView(binding.root)
         binding.viewPager.adapter = MediaViewPagerAdapter(supportFragmentManager, lifecycle)
+
+        binding.backToMainMenu.setOnClickListener {
+            this.onBackPressedDispatcher.onBackPressed()
+        }
 
         tabMediator = TabLayoutMediator(binding.tabLayout, binding.viewPager) { tab, position ->
             when(position) {
@@ -24,6 +29,7 @@ class MediaActivity : AppCompatActivity() {
         }
         tabMediator.attach()
     }
+
     override fun onDestroy() {
         tabMediator.detach()
         super.onDestroy()

@@ -16,7 +16,6 @@ class MediaViewPagerAdapter(fragmentManager: FragmentManager, lifecycle: Lifecyc
 
     override fun createFragment(position: Int): Fragment {
         return when(position) {
-            0 -> FavoritesFragment()
             1 -> PlaylistsFragment()
             else -> PlaylistsFragment()
         }
