@@ -15,12 +15,13 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="center"
         android:layout_marginTop="16dp"
-        android:textSize="24dp"
+        style="@style/ErrorTextStyle"
+        android:textSize="19sp"
         android:fontWeight="500"
         android:text="@string/empty_favorites"
         android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-        style="@style/ErrorTextStyle"
         tools:text="Very Very Very Long Track Name That Should Be Truncated"/>
 
 </LinearLayout>
