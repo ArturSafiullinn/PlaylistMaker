@@ -14,13 +14,21 @@ class FavoritesFragment : Fragment() {
     private var _binding: FavoritesFragmentBinding? = null
     private val binding get() = _binding!!
     private val viewModel: PlaylistsViewModel by viewModel()
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         _binding = FavoritesFragmentBinding.inflate(inflater, container, false)
         return binding.root
     }
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    companion object {
+        fun newInstance(): FavoritesFragment {
+            return FavoritesFragment()
+        }
     }
 }
