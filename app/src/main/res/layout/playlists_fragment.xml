@@ -1,0 +1,35 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/settings_background_color"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <com.google.android.material.button.MaterialButton
+    android:id="@+id/clear_history_button"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="24dp"
+    android:text="@string/add_playlists"
+    style="@style/SearchActivityButtonStyle" />
+
+    <ImageView
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:layout_marginTop="46dp"
+        android:src="@drawable/nothing_found"
+        android:layout_gravity="center"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_gravity="center"
+        style="@style/ErrorTextStyle"
+        android:textSize="19sp"
+        android:fontWeight="500"
+        android:text="@string/empty_playlists"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        tools:text="Very Very Very Long Track Name That Should Be Truncated"/>
+
+</LinearLayout>
