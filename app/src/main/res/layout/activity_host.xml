@@ -19,6 +19,13 @@
         app:layout_constraintVertical_bias="1.0"
         app:navGraph="@navigation/navigation_graph" />
 
+    <FrameLayout
+        android:id="@+id/separatorLine"
+        android:layout_width="match_parent"
+        android:layout_height="10px"
+        android:background="@color/off_icon_color_1"
+        app:layout_constraintTop_toBottomOf="@id/rootFragmentContainerView"/>
+
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNavigationView"
         android:layout_width="0dp"
@@ -28,6 +35,7 @@
         app:itemTextColor="@color/bottom_nav_item_tint"
         app:menu="@menu/bottom_navigation_menu"
         app:labelVisibilityMode="labeled"
+        app:layout_constraintTop_toBottomOf="@id/separatorLine"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>

@@ -35,6 +35,7 @@ class SearchFragment : Fragment() {
     private lateinit var trackAdapter: TrackAdapter
     private lateinit var historyAdapter: TrackAdapter
     private val viewModel: SearchViewModel by viewModel()
+    private var suppressTextWatcher = false
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         _binding = FragmentSearchBinding.inflate(inflater, container, false)
@@ -46,9 +47,12 @@ class SearchFragment : Fragment() {
         initAdapters()
         initListeners()
         observeViewModel()
-
         binding.searchInput.setupClearButtonWithAction()
-        viewModel.loadHistory()
+
+        if (viewModel.state.value == null) {
+            viewModel.loadHistory()
+        }
+        restoreSearchTextSafely(viewModel.getLastQuery())
     }
 
     override fun onDestroyView() {
@@ -61,12 +65,10 @@ class SearchFragment : Fragment() {
             viewModel.addTrackToHistory(track)
             openTrackDetails(track)
         }
-
         historyAdapter = TrackAdapter(mutableListOf()) { track ->
             viewModel.addTrackToHistory(track)
             openTrackDetails(track)
         }
-
         binding.recyclerView.adapter = trackAdapter
         binding.historyRecycler.adapter = historyAdapter
     }
@@ -77,13 +79,19 @@ class SearchFragment : Fragment() {
         findNavController().navigate(action)
     }
 
+    private fun restoreSearchTextSafely(text: String) {
+        suppressTextWatcher = true
+        binding.searchInput.setText(text)
+        binding.searchInput.setSelection(binding.searchInput.text.length)
+        suppressTextWatcher = false
+    }
 
     private fun initListeners() {
-
         binding.searchInput.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
                 val query = binding.searchInput.text.toString()
                 if (query.isNotEmpty()) {
+                    viewModel.cancelDebounce()
                     viewModel.search(query)
                     hideKeyboard()
                 }
@@ -92,21 +100,23 @@ class SearchFragment : Fragment() {
         }
 
         binding.searchInput.setOnFocusChangeListener { _, _ ->
-            if (binding.searchInput.text.isEmpty()) {
+            if (binding.searchInput.text.isEmpty() && viewModel.state.value !is SearchScreenState.Content) {
                 viewModel.loadHistory()
             }
         }
 
         binding.searchInput.addTextChangedListener(object : TextWatcher {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                if (s.isNullOrEmpty()) {
+                if (suppressTextWatcher) return
+                val text = s?.toString().orEmpty()
+                viewModel.onQueryChanged(text)
+                if (text.isEmpty()) {
                     viewModel.clearResults()
                     viewModel.loadHistory()
                 } else {
-                    viewModel.searchDebounce(s.toString())
+                    viewModel.searchDebounce(text)
                 }
             }
-
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
             override fun afterTextChanged(s: Editable?) = Unit
         })
@@ -118,6 +128,7 @@ class SearchFragment : Fragment() {
         binding.retryButton.setOnClickListener {
             val query = binding.searchInput.text.toString()
             if (query.isNotEmpty()) {
+                viewModel.cancelDebounce()
                 viewModel.search(query)
                 hideKeyboard()
             }
@@ -127,17 +138,11 @@ class SearchFragment : Fragment() {
     private fun observeViewModel() {
         viewModel.state.observe(viewLifecycleOwner) { state ->
             when (state) {
-                is SearchScreenState.Loading -> {
-                    showOnly(binding.progressBar)
-                }
+                is SearchScreenState.Loading -> showOnly(binding.progressBar)
 
-                is SearchScreenState.Error -> {
-                    showOnly(binding.errorView)
-                }
+                is SearchScreenState.Error -> showOnly(binding.errorView)
 
-                is SearchScreenState.Empty -> {
-                    showOnly(binding.emptyView)
-                }
+                is SearchScreenState.Empty -> showOnly(binding.emptyView)
 
                 is SearchScreenState.Content -> {
                     showOnly(binding.recyclerView)
@@ -145,21 +150,17 @@ class SearchFragment : Fragment() {
                 }
 
                 is SearchScreenState.History -> {
-                    if (binding.searchInput.hasFocus() && binding.searchInput.text.isEmpty()) {
-                        if (state.tracks.isNotEmpty()) {
-                            binding.historyContainer.visibility = View.VISIBLE
-                            historyAdapter.updateData(state.tracks)
-                        } else {
-                            binding.historyContainer.visibility = View.GONE
-                        }
-
+                    if (state.tracks.isNotEmpty()) {
+                        showOnly(binding.historyContainer)
+                        historyAdapter.updateData(state.tracks)
                     } else {
-                        binding.historyContainer.visibility = View.GONE
+                        showNone()
                     }
                 }
             }
         }
     }
+
 
     private fun showOnly(viewToShow: View) {
         val allViews = listOf(
@@ -181,17 +182,14 @@ class SearchFragment : Fragment() {
         val searchIcon = ContextCompat.getDrawable(context, R.drawable.search)
         val clearIcon = ContextCompat.getDrawable(context, R.drawable.ic_clear)
         setCompoundDrawablesWithIntrinsicBounds(searchIcon, null, null, null)
-
         addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(editable: Editable?) {
                 val clearDrawable = if (editable?.isNotEmpty() == true) clearIcon else null
                 setCompoundDrawablesWithIntrinsicBounds(searchIcon, null, clearDrawable, null)
             }
-
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) = Unit
         })
-
         setOnTouchListener { _, event ->
             if (event.action == MotionEvent.ACTION_UP) {
                 val touchPositionX = event.rawX
@@ -206,5 +204,13 @@ class SearchFragment : Fragment() {
             }
             false
         }
+    }
+
+    private fun showNone() {
+        binding.progressBar.visibility = View.GONE
+        binding.errorView.visibility = View.GONE
+        binding.emptyView.visibility = View.GONE
+        binding.recyclerView.visibility = View.GONE
+        binding.historyContainer.visibility = View.GONE
     }
 }
