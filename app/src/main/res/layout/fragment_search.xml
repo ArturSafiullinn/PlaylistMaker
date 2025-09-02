@@ -23,8 +23,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/search_activity_title"
-                android:layout_marginStart="@dimen/title_back_text_padding"
-                android:layout_marginTop="10dp"
                 style="@style/TitleTextStyle"/>
         </LinearLayout>
 
