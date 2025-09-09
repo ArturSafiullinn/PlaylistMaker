@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/settings_background_color"
-    tools:context=".presentation.ui.track.TrackActivity">
+    tools:context=".presentation.ui.track.TrackFragment">
 
     <ImageView
         android:id="@+id/back_button"

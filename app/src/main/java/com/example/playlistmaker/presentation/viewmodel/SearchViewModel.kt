@@ -1,6 +1,5 @@
 package com.example.playlistmaker.presentation.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -17,16 +16,21 @@ class SearchViewModel(
     private val searchInteractor: SearchTracksInteractor,
     private val historyInteractor: SearchHistoryInteractor
 ) : ViewModel() {
-    init {
-        Log.d("SearchViewModel", "SearchViewModel created with $searchInteractor and $historyInteractor")
-    }
 
     private val _state = MutableLiveData<SearchScreenState>()
     val state: LiveData<SearchScreenState> = _state
 
     private var searchJob: Job? = null
+    private var lastQuery: String = ""
+
+    fun onQueryChanged(text: String) {
+        lastQuery = text
+    }
+
+    fun getLastQuery(): String = lastQuery
 
     fun searchDebounce(query: String) {
+        onQueryChanged(query)
         searchJob?.cancel()
         searchJob = viewModelScope.launch {
             delay(2000)
@@ -34,9 +38,14 @@ class SearchViewModel(
         }
     }
 
-    fun search(query: String) {
-        _state.postValue(SearchScreenState.Loading)
+    fun cancelDebounce() {
+        searchJob?.cancel()
+    }
 
+    fun search(query: String) {
+        lastQuery = query
+        searchJob?.cancel()
+        _state.postValue(SearchScreenState.Loading)
         searchInteractor.searchTracks(query) { result ->
             result
                 .onSuccess { tracks ->
@@ -52,6 +61,7 @@ class SearchViewModel(
     }
 
     fun clearResults() {
+        searchJob?.cancel()
         _state.value = SearchScreenState.Empty
     }
 

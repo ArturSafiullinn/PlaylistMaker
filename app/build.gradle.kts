@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     id("kotlin-parcelize")
+    id("androidx.navigation.safeargs.kotlin")
 }
 
 android {
@@ -78,4 +79,12 @@ dependencies {
 
     // Koin for Android
     implementation("io.insert-koin:koin-android:3.5.3")
+
+    // Jetpack Navigation Component
+    implementation("androidx.navigation:navigation-fragment-ktx:2.5.3")
+    implementation("androidx.navigation:navigation-ui-ktx:2.5.3")
+    implementation("androidx.fragment:fragment-ktx:1.5.6")
+
+    //Bottom Navigation View
+    implementation("com.google.android.material:material:1.12.0")
 }

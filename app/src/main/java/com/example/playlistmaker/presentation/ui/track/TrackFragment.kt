@@ -3,22 +3,28 @@ package com.example.playlistmaker.presentation.ui.track
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import androidx.appcompat.app.AppCompatActivity
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.navArgs
 import com.bumptech.glide.Glide
 import com.example.playlistmaker.R
-import com.example.playlistmaker.databinding.ActivityTrackBinding
+import com.example.playlistmaker.databinding.FragmentTrackBinding
 import com.example.playlistmaker.presentation.viewmodel.TrackViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
-import com.example.playlistmaker.presentation.models.UiTrack
 
-class TrackActivity : AppCompatActivity() {
+class TrackFragment : Fragment() {
 
-    private lateinit var track: UiTrack
-    private lateinit var binding: ActivityTrackBinding
+    private var _binding: FragmentTrackBinding? = null
+    private val binding get() = _binding!!
+
+    private val args: TrackFragmentArgs by navArgs()
     private val viewModel: TrackViewModel by viewModel()
+
     private val handler = Handler(Looper.getMainLooper())
     private val updateTimeRunnable = object : Runnable {
         override fun run() {
@@ -27,18 +33,24 @@ class TrackActivity : AppCompatActivity() {
         }
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        binding = ActivityTrackBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentTrackBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
-        track = intent.getParcelableExtra("track") ?: run {
-            finish()
-            return
-        }
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        val track = args.track
 
         track.previewUrl?.let { url ->
             viewModel.preparePlayer(url)
+        } ?: run {
+            binding.playButton.isEnabled = false
         }
 
         with(binding) {
@@ -51,19 +63,21 @@ class TrackActivity : AppCompatActivity() {
             playbackTime.text = formatTime(0)
             playButton.isEnabled = false
 
-            Glide.with(this@TrackActivity)
+            Glide.with(this@TrackFragment)
                 .load(track.artworkUrl.replace("100x100bb.jpg", "512x512bb.jpg"))
                 .placeholder(R.drawable.placeholder)
                 .into(albumCover)
 
-            backButton.setOnClickListener { finish() }
+            backButton.setOnClickListener {
+                requireActivity().onBackPressedDispatcher.onBackPressed()
+            }
 
             playButton.setOnClickListener {
                 viewModel.togglePlayback()
             }
         }
 
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             viewModel.uiState.collectLatest { state ->
                 when (state) {
                     is TrackViewModel.UiState.Ready -> {
@@ -94,6 +108,11 @@ class TrackActivity : AppCompatActivity() {
     override fun onPause() {
         super.onPause()
         handler.removeCallbacks(updateTimeRunnable)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     override fun onDestroy() {
