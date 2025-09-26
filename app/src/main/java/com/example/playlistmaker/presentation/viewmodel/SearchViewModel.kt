@@ -8,6 +8,7 @@ import com.example.playlistmaker.domain.api.SearchHistoryInteractor
 import com.example.playlistmaker.domain.api.SearchTracksInteractor
 import com.example.playlistmaker.domain.models.Track
 import com.example.playlistmaker.presentation.models.SearchScreenState
+import com.example.playlistmaker.util.Resource
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -46,17 +47,26 @@ class SearchViewModel(
         lastQuery = query
         searchJob?.cancel()
         _state.postValue(SearchScreenState.Loading)
-        searchInteractor.searchTracks(query) { result ->
-            result
-                .onSuccess { tracks ->
-                    _state.postValue(
-                        if (tracks.isEmpty()) SearchScreenState.Empty
-                        else SearchScreenState.Content(tracks)
-                    )
+
+        searchJob = viewModelScope.launch {
+            searchInteractor.searchTracks(query).collect { resource ->
+                when (resource) {
+                    is Resource.Loading -> {
+                        _state.postValue(SearchScreenState.Loading)
+                    }
+                    is Resource.Success -> {
+                        val tracks = resource.data
+                        if (tracks.isEmpty()) {
+                            _state.postValue(SearchScreenState.Empty)
+                        } else {
+                            _state.postValue(SearchScreenState.Content(tracks))
+                        }
+                    }
+                    is Resource.Error -> {
+                        _state.postValue(SearchScreenState.Error)
+                    }
                 }
-                .onFailure {
-                    _state.postValue(SearchScreenState.Error)
-                }
+            }
         }
     }
 
