@@ -1,61 +1,126 @@
 package com.example.playlistmaker.presentation.viewmodel
 
+import androidx.annotation.DrawableRes
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.playlistmaker.R
 import com.example.playlistmaker.domain.api.AudioPlayerInteractor
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import java.util.concurrent.TimeUnit
 
 class TrackViewModel(
     private val player: AudioPlayerInteractor
 ) : ViewModel() {
 
-    sealed class UiState {
-        object Ready : UiState()
-        object Playing : UiState()
-        object Paused : UiState()
-        object Finished : UiState()
-        data class TimeUpdate(val millis: Int) : UiState()
+    companion object {
+        private const val CLICK_DEBOUNCE_DELAY = 300L
     }
 
-    private val _uiState = MutableStateFlow<UiState>(UiState.Paused)
-    val uiState: StateFlow<UiState> = _uiState
+    sealed class PlayerState(
+        val isPlayButtonEnabled: Boolean,
+        @DrawableRes val buttonIcon: Int,
+        val progress: String
+    ) {
+        class Default : PlayerState(
+            isPlayButtonEnabled = false,
+            buttonIcon = R.drawable.play_button,
+            progress = "00:00"
+        )
+
+        class Prepared : PlayerState(
+            isPlayButtonEnabled = true,
+            buttonIcon = R.drawable.play_button,
+            progress = "00:00"
+        )
+
+        class Playing(progress: String) : PlayerState(
+            isPlayButtonEnabled = true,
+            buttonIcon = R.drawable.pause_button,
+            progress = progress
+        )
+
+        class Paused(progress: String) : PlayerState(
+            isPlayButtonEnabled = true,
+            buttonIcon = R.drawable.play_button,
+            progress = progress
+        )
+    }
+
+    private var timerJob: Job? = null
+    private val playerState = MutableLiveData<PlayerState>(PlayerState.Default())
+    fun observePlayerState(): LiveData<PlayerState> = playerState
+
+    override fun onCleared() {
+        stopTimer()
+        player.release()
+        super.onCleared()
+    }
 
     fun preparePlayer(url: String) {
         player.prepare(
             url = url,
             onReady = {
-                _uiState.value = UiState.Ready
+                playerState.postValue(PlayerState.Prepared())
             },
             onCompletion = {
-                _uiState.value = UiState.Finished
+                stopTimer()
+                playerState.postValue(PlayerState.Prepared())
             }
         )
     }
 
-    fun togglePlayback() {
+    fun onPlayButtonClicked() {
+        when (playerState.value) {
+            is PlayerState.Playing -> pausePlayer()
+            is PlayerState.Prepared, is PlayerState.Paused -> startPlayer()
+            else -> Unit
+        }
+    }
+
+    fun onPause() {
         if (player.isPlaying()) {
-            player.pause()
-            _uiState.value = UiState.Paused
-        } else {
-            player.play()
-            _uiState.value = UiState.Playing
+            pausePlayer()
         }
     }
 
-    fun updatePlaybackTime() {
-        viewModelScope.launch {
-            _uiState.emit(UiState.TimeUpdate(player.getCurrentPosition()))
+    private fun startPlayer() {
+        player.play()
+        playerState.postValue(PlayerState.Playing(formatMillis(player.getCurrentPosition())))
+        startTimer()
+    }
+
+    private fun pausePlayer() {
+        player.pause()
+        stopTimer()
+        playerState.postValue(PlayerState.Paused(formatMillis(player.getCurrentPosition())))
+    }
+
+    private fun startTimer() {
+        stopTimer()
+        timerJob = viewModelScope.launch {
+            while (isActive && player.isPlaying()) {
+                playerState.postValue(
+                    PlayerState.Playing(formatMillis(player.getCurrentPosition()))
+                )
+                delay(CLICK_DEBOUNCE_DELAY)
+            }
         }
     }
 
-    fun releasePlayer() {
-        player.release()
+    private fun stopTimer() {
+        timerJob?.cancel()
+        timerJob = null
     }
 
-    override fun onCleared() {
-        player.release()
-        super.onCleared()
+    private fun formatMillis(millis: Int): String {
+        val totalSeconds = TimeUnit.MILLISECONDS.toSeconds(millis.toLong())
+        val minutes = totalSeconds / 60
+        val seconds = totalSeconds % 60
+        return String.format("%02d:%02d", minutes, seconds)
     }
 }

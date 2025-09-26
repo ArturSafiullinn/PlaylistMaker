@@ -1,9 +1,9 @@
 package com.example.playlistmaker.di
 
+import ITunesApi
 import android.content.Context
 import android.content.SharedPreferences
 import android.media.MediaPlayer
-import com.example.playlistmaker.data.network.ITunesApi
 import com.google.gson.Gson
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit

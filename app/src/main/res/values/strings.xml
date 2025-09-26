@@ -35,4 +35,8 @@
     <string name="favorite_tracks">Избранные треки</string>
     <string name="playlists">Плейлисты</string>
     <string name="add_playlists">Новый плейлист</string>
+    <string name="error_no_internet">Проверьте подключение к интернету</string>
+    <string name="error_bad_request">Некорректный запрос</string>
+    <string name="error_server">Ошибка сервера: %1$d</string>
+    <string name="default_track_time">00:00</string>
 </resources>

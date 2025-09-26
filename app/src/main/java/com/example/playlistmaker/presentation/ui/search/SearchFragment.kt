@@ -13,6 +13,7 @@ import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity.INPUT_METHOD_SERVICE
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.example.playlistmaker.R
 import com.example.playlistmaker.databinding.FragmentSearchBinding
@@ -21,29 +22,46 @@ import com.example.playlistmaker.presentation.mappers.toUi
 import com.example.playlistmaker.presentation.models.SearchScreenState
 import com.example.playlistmaker.presentation.models.UiTrack
 import com.example.playlistmaker.presentation.ui.search.adapter.TrackAdapter
+import com.example.playlistmaker.presentation.utils.debounce
 import com.example.playlistmaker.presentation.viewmodel.SearchViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class SearchFragment : Fragment() {
 
     companion object {
-        private const val EXTRA_TRACK = "track"
+        private const val CLICK_DEBOUNCE_DELAY = 300L
     }
 
     private var _binding: FragmentSearchBinding? = null
     private val binding get() = _binding!!
+
     private lateinit var trackAdapter: TrackAdapter
     private lateinit var historyAdapter: TrackAdapter
     private val viewModel: SearchViewModel by viewModel()
     private var suppressTextWatcher = false
+    private lateinit var trackClickDebounce: (Track) -> Unit
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
         _binding = FragmentSearchBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        trackClickDebounce = debounce(
+            delayMillis = CLICK_DEBOUNCE_DELAY,
+            coroutineScope = viewLifecycleOwner.lifecycleScope,
+            useLastParam = false
+        ) { track ->
+            viewModel.addTrackToHistory(track)
+            openTrackDetails(track)
+        }
+
         initAdapters()
         initListeners()
         observeViewModel()
@@ -62,12 +80,10 @@ class SearchFragment : Fragment() {
 
     private fun initAdapters() {
         trackAdapter = TrackAdapter(mutableListOf()) { track ->
-            viewModel.addTrackToHistory(track)
-            openTrackDetails(track)
+            trackClickDebounce(track)
         }
         historyAdapter = TrackAdapter(mutableListOf()) { track ->
-            viewModel.addTrackToHistory(track)
-            openTrackDetails(track)
+            trackClickDebounce(track)
         }
         binding.recyclerView.adapter = trackAdapter
         binding.historyRecycler.adapter = historyAdapter
@@ -117,6 +133,7 @@ class SearchFragment : Fragment() {
                     viewModel.searchDebounce(text)
                 }
             }
+
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
             override fun afterTextChanged(s: Editable?) = Unit
         })
@@ -139,16 +156,12 @@ class SearchFragment : Fragment() {
         viewModel.state.observe(viewLifecycleOwner) { state ->
             when (state) {
                 is SearchScreenState.Loading -> showOnly(binding.progressBar)
-
                 is SearchScreenState.Error -> showOnly(binding.errorView)
-
                 is SearchScreenState.Empty -> showOnly(binding.emptyView)
-
                 is SearchScreenState.Content -> {
                     showOnly(binding.recyclerView)
                     trackAdapter.updateData(state.tracks)
                 }
-
                 is SearchScreenState.History -> {
                     if (state.tracks.isNotEmpty()) {
                         showOnly(binding.historyContainer)
@@ -160,7 +173,6 @@ class SearchFragment : Fragment() {
             }
         }
     }
-
 
     private fun showOnly(viewToShow: View) {
         val allViews = listOf(
@@ -187,6 +199,7 @@ class SearchFragment : Fragment() {
                 val clearDrawable = if (editable?.isNotEmpty() == true) clearIcon else null
                 setCompoundDrawablesWithIntrinsicBounds(searchIcon, null, clearDrawable, null)
             }
+
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) = Unit
         })
