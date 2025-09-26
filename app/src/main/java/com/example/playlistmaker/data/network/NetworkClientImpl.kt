@@ -8,8 +8,6 @@ import com.example.playlistmaker.data.network.core.Response
 import com.example.playlistmaker.data.network.itunes.TracksSearchRequest
 import com.example.playlistmaker.data.network.itunes.TracksSearchResponse
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 
 class NetworkClientImpl(
     private val iTunesApi: ITunesApi,
@@ -25,28 +23,25 @@ class NetworkClientImpl(
             return Response().apply { resultCode = 400 }
         }
 
-        return withContext(Dispatchers.IO) {
-            try {
-                val resp = iTunesApi.search(dto.term)
+        return try {
+            val resp = iTunesApi.search(dto.term)
 
-                if (resp.isSuccessful) {
-                    val body = resp.body()
-                    if (body != null) {
-                        return@withContext TracksSearchResponse().apply {
-                            resultCode = 200
-                            results = body.results
-                        }
-                    } else {
-                        return@withContext Response().apply { resultCode = 500 }
+            if (resp.isSuccessful) {
+                val body = resp.body()
+                if (body != null) {
+                    TracksSearchResponse(body.results).apply {
+                        resultCode = 200
                     }
                 } else {
-                    return@withContext Response().apply { resultCode = resp.code() }
+                    Response().apply { resultCode = 500 }
                 }
-            } catch (ce: CancellationException) {
-                throw ce
-            } catch (t: Throwable) {
-                return@withContext Response().apply { resultCode = 500 }
+            } else {
+                Response().apply { resultCode = resp.code() }
             }
+        } catch (ce: CancellationException) {
+            throw ce
+        } catch (t: Throwable) {
+            Response().apply { resultCode = 500 }
         }
     }
 

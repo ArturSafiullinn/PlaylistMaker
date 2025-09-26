@@ -17,6 +17,10 @@ class TrackViewModel(
     private val player: AudioPlayerInteractor
 ) : ViewModel() {
 
+    companion object {
+        private const val CLICK_DEBOUNCE_DELAY = 300L
+    }
+
     sealed class PlayerState(
         val isPlayButtonEnabled: Boolean,
         @DrawableRes val buttonIcon: Int,
@@ -103,7 +107,7 @@ class TrackViewModel(
                 playerState.postValue(
                     PlayerState.Playing(formatMillis(player.getCurrentPosition()))
                 )
-                delay(300L)
+                delay(CLICK_DEBOUNCE_DELAY)
             }
         }
     }
