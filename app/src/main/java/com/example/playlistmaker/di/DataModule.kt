@@ -4,6 +4,7 @@ import ITunesApi
 import TrackRepositoryImpl
 import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
+import androidx.room.Room
 import com.example.playlistmaker.data.history.SearchHistoryRepositoryImpl
 import com.example.playlistmaker.data.network.*
 import com.example.playlistmaker.data.player.AudioPlayerRepositoryImpl
@@ -36,4 +37,10 @@ val dataModule = module {
     single<SharedPreferences> {
         androidContext().getSharedPreferences("app_prefs", MODE_PRIVATE)
     }
+
+    single {
+        Room.databaseBuilder(androidContext(), AppDatabase::class.java, "database.db")
+            .build()
+    }
+
 }
