@@ -62,6 +62,10 @@ class TrackFragment : Fragment() {
             playButton.setOnClickListener {
                 viewModel.onPlayButtonClicked()
             }
+
+            likeButton.setOnClickListener {
+                viewModel.onLikeButtonClicked()
+            }
         }
 
         viewModel.observePlayerState().observe(viewLifecycleOwner) { state ->

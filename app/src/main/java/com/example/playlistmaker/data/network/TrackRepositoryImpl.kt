@@ -21,12 +21,13 @@ class TrackRepositoryImpl(
         when (response.resultCode) {
             -1 -> emit(Resource.Error(resources.getString(R.string.error_no_internet)))
             200 -> {
-                val data = (response as TracksSearchResponse).results.map { dto ->
+                val data = (response as TracksSearchResponse).results.mapNotNull { dto ->
+                    val id = dto.trackId ?: return@mapNotNull null
                     Track(
-                        trackId        = dto.trackId ?: 0,
+                        trackId        = id,
                         trackName      = dto.trackName.orEmpty(),
                         artistName     = dto.artistName.orEmpty(),
-                        trackTime      = formatDuration(dto.trackTimeMillis),
+                        trackTimeMillis      = formatDuration(dto.trackTimeMillis),
                         artworkUrl     = dto.artworkUrl100.orEmpty(),
                         collectionName = dto.collectionName.orEmpty(),
                         releaseDate    = dto.releaseDate?.take(4).orEmpty(),
@@ -41,6 +42,7 @@ class TrackRepositoryImpl(
             else -> emit(Resource.Error(resources.getString(R.string.error_server, response.resultCode)))
         }
     }
+
 
     private fun formatDuration(ms: Long?): String {
         if (ms == null) return resources.getString(R.string.default_track_time)

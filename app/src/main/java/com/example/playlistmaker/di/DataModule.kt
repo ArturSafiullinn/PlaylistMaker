@@ -5,6 +5,8 @@ import TrackRepositoryImpl
 import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
 import androidx.room.Room
+import com.example.playlistmaker.data.TrackDbConverter
+import com.example.playlistmaker.data.db.AppDatabase
 import com.example.playlistmaker.data.history.SearchHistoryRepositoryImpl
 import com.example.playlistmaker.data.network.*
 import com.example.playlistmaker.data.player.AudioPlayerRepositoryImpl
@@ -38,9 +40,10 @@ val dataModule = module {
         androidContext().getSharedPreferences("app_prefs", MODE_PRIVATE)
     }
 
-    single {
+    single<AppDatabase> {
         Room.databaseBuilder(androidContext(), AppDatabase::class.java, "database.db")
             .build()
     }
 
+    factory { TrackDbConverter() }
 }
