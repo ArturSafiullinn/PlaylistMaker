@@ -12,9 +12,9 @@ class FavoritesRepositoryImpl(
     private val converter: TrackDbConverter
 ) : FavoritesRepository {
 
-    override fun isFavoriteFlow(trackId: Int) = dao.observeIsFavorite(trackId)
+    override fun isFavorite(trackId: Int) = dao.observeIsFavorite(trackId)
 
-    override fun favoritesFlow(): Flow<List<Track>> =
+    override fun getFavorites(): Flow<List<Track>> =
         dao.observeFavorites().map { list -> list.map(converter::map) }
 
     override suspend fun addToFavorites(track: Track) {

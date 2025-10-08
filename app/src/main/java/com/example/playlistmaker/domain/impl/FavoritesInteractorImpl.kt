@@ -7,8 +7,8 @@ import com.example.playlistmaker.domain.models.Track
 class FavoritesInteractorImpl(
     private val repo: FavoritesRepository
 ) : FavoritesInteractor {
-    override fun isFavoriteFlow(trackId: Int) = repo.isFavoriteFlow(trackId)
-    override fun favoritesFlow() = repo.favoritesFlow()
+    override fun isFavorite(trackId: Int) = repo.isFavorite(trackId)
+    override fun getFavorites() = repo.getFavorites()
     override suspend fun add(track: Track) = repo.addToFavorites(track)
     override suspend fun remove(trackId: Int) = repo.removeFromFavorites(trackId)
 }

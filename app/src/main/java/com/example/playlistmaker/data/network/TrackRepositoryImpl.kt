@@ -27,7 +27,7 @@ class TrackRepositoryImpl(
                         trackId        = id,
                         trackName      = dto.trackName.orEmpty(),
                         artistName     = dto.artistName.orEmpty(),
-                        trackTimeMillis      = formatDuration(dto.trackTimeMillis),
+                        trackTime      = formatDuration(dto.trackTimeMillis),
                         artworkUrl     = dto.artworkUrl100.orEmpty(),
                         collectionName = dto.collectionName.orEmpty(),
                         releaseDate    = dto.releaseDate?.take(4).orEmpty(),

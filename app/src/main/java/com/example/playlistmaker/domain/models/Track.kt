@@ -7,7 +7,7 @@ data class Track(
     val trackId: Long,
     val trackName: String,
     val artistName: String,
-    val trackTimeMillis: Int,
+    val trackTime: String,
     val artworkUrl: String,
     val collectionName: String = "",
     val releaseDate: String = "",
@@ -15,4 +15,3 @@ data class Track(
     val country: String = "",
     val previewUrl: String
 ) : Serializable
-
