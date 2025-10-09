@@ -78,8 +78,8 @@ dependencies {
     implementation("androidx.fragment:fragment-ktx:1.5.6")
 
     // Room
-    val room_version = "2.5.1" // можно и 2.6.x, но не обязательно
+    val room_version = "2.5.1"
     implementation("androidx.room:room-runtime:$room_version")
     implementation("androidx.room:room-ktx:$room_version")
-    ksp("androidx.room:room-compiler:$room_version")   // вместо kapt
+    ksp("androidx.room:room-compiler:$room_version")
 }
