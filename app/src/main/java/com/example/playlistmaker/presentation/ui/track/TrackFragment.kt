@@ -9,6 +9,7 @@ import androidx.navigation.fragment.navArgs
 import com.bumptech.glide.Glide
 import com.example.playlistmaker.R
 import com.example.playlistmaker.databinding.FragmentTrackBinding
+import com.example.playlistmaker.presentation.mappers.toDomain
 import com.example.playlistmaker.presentation.viewmodel.TrackViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -31,6 +32,16 @@ class TrackFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        val uiTrack = args.track
+        val domainTrack = uiTrack.toDomain()
+        viewModel.bindTrack(domainTrack)
+
+        if (uiTrack.previewUrl.isNullOrBlank()) {
+            binding.playButton.isEnabled = false
+        } else {
+            viewModel.preparePlayer(uiTrack.previewUrl!!)
+        }
 
         val track = args.track
 
@@ -72,6 +83,15 @@ class TrackFragment : Fragment() {
             binding.playButton.isEnabled = state.isPlayButtonEnabled
             binding.playButton.setImageResource(state.buttonIcon)
             binding.playbackTime.text = state.progress
+        }
+
+        viewModel.isFavorite.observe(viewLifecycleOwner) {isFavorite ->
+            if (isFavorite) {
+                binding.likeButton.setImageResource(R.drawable.add_to_favorite_active_button)
+            }
+            else {
+                binding.likeButton.setImageResource(R.drawable.add_to_favorite_inactive_button)
+            }
         }
     }
 

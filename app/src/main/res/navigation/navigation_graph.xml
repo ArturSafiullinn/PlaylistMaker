@@ -15,7 +15,11 @@
     <fragment
         android:id="@+id/mediaFragment"
         android:name="com.example.playlistmaker.presentation.ui.media.MediaFragment"
-        android:label="MediaFragment" />
+        android:label="MediaFragment" >
+        <action
+            android:id="@+id/action_mediaFragment_to_trackFragment"
+            app:destination="@id/trackFragment" />
+    </fragment>
     <fragment
         android:id="@+id/settingsFragment"
         android:name="com.example.playlistmaker.presentation.ui.settings.SettingsFragment"

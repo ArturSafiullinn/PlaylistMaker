@@ -18,10 +18,10 @@ val presentationModule = module {
 
     viewModel { SettingsViewModel(get()) }
 
-    viewModel { TrackViewModel(get()) }
+    viewModel { TrackViewModel(get(), get()) }
 
     viewModel { MediaViewModel() }
 
-    viewModel { FavoritesViewModel() }
+    viewModel { FavoritesViewModel(get()) }
     viewModel { PlaylistsViewModel() }
 }

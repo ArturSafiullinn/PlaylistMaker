@@ -27,13 +27,13 @@ class TrackRepositoryImpl(
                         trackId        = id,
                         trackName      = dto.trackName.orEmpty(),
                         artistName     = dto.artistName.orEmpty(),
-                        trackTime      = formatDuration(dto.trackTimeMillis),
+                        trackTime      = dto.trackTime ?: 0L,
                         artworkUrl     = dto.artworkUrl100.orEmpty(),
-                        collectionName = dto.collectionName.orEmpty(),
-                        releaseDate    = dto.releaseDate?.take(4).orEmpty(),
-                        genre          = dto.primaryGenreName.orEmpty(),
-                        country        = dto.country.orEmpty(),
-                        previewUrl     = dto.previewUrl.orEmpty()
+                        collectionName = dto.collectionName,
+                        releaseDate    = dto.releaseDate?.take(4),
+                        genre          = dto.primaryGenreName,
+                        country        = dto.country,
+                        previewUrl     = dto.previewUrl
                     )
                 }
                 emit(Resource.Success(data))
@@ -41,14 +41,5 @@ class TrackRepositoryImpl(
             400 -> emit(Resource.Error(resources.getString(R.string.error_bad_request)))
             else -> emit(Resource.Error(resources.getString(R.string.error_server, response.resultCode)))
         }
-    }
-
-
-    private fun formatDuration(ms: Long?): String {
-        if (ms == null) return resources.getString(R.string.default_track_time)
-        val totalSec = ms / 1000
-        val minutes = totalSec / 60
-        val seconds = totalSec % 60
-        return String.format("%02d:%02d", minutes, seconds)
     }
 }

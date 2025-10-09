@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface TrackDao {
     @Query("SELECT EXISTS(SELECT 1 FROM favorites WHERE trackId = :id)")
-    fun observeIsFavorite(id: Int): Flow<Boolean>
+    fun observeIsFavorite(id: Long): Flow<Boolean>
 
     @Query("SELECT * FROM favorites ORDER BY addedAt DESC")
     fun observeFavorites(): Flow<List<TrackEntity>>
@@ -19,5 +19,5 @@ interface TrackDao {
     suspend fun insert(entity: TrackEntity)
 
     @Query("DELETE FROM favorites WHERE trackId = :id")
-    suspend fun deleteById(id: Int)
+    suspend fun deleteById(id: Long)
 }

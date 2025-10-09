@@ -4,7 +4,7 @@ data class TrackDto(
     val trackId: Long?,
     val trackName: String?,
     val artistName: String?,
-    val trackTimeMillis: Long?,
+    val trackTime: Long,
     val artworkUrl100: String?,
     val collectionName: String?,
     val releaseDate: String?,

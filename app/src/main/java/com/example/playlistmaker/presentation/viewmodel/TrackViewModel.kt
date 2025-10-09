@@ -73,7 +73,7 @@ class TrackViewModel(
     fun bindTrack(track: Track) {
         currentTrack = track
         viewModelScope.launch {
-            favorites.isFavoriteFlow(track.trackId).collect {
+            favorites.isFavorite(track.trackId).collect {
                 _isFavorite.postValue(it)
             }
         }

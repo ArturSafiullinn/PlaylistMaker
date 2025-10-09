@@ -5,35 +5,54 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
-import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.playlistmaker.databinding.FragmentMediaBinding
+import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.NavHostFragment
+import com.example.playlistmaker.databinding.FragmentFavoritesBinding
+import com.example.playlistmaker.domain.models.Track
+import com.example.playlistmaker.presentation.mappers.toUi
 import com.example.playlistmaker.presentation.models.FavoritesScreenState
+import com.example.playlistmaker.presentation.models.UiTrack
+import com.example.playlistmaker.presentation.ui.media.MediaFragmentDirections
 import com.example.playlistmaker.presentation.ui.search.adapter.TrackAdapter
+import com.example.playlistmaker.presentation.utils.debounce
 import com.example.playlistmaker.presentation.viewmodel.FavoritesViewModel
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class FavoritesFragment : Fragment() {
 
-    private var _binding: FragmentMediaBinding? = null
+    companion object {
+        private const val CLICK_DEBOUNCE_DELAY = 300L
+        fun newInstance(): FavoritesFragment {
+            return FavoritesFragment()
+        }
+    }
+
+    private var _binding: FragmentFavoritesBinding? = null
     private val binding get() = _binding!!
 
-    private val viewModel: FavoritesViewModel by viewModels() // или через Koin/Factory
-    private lateinit var adapter: TrackAdapter
+    private val viewModel: FavoritesViewModel by viewModel()
+
+    private lateinit var trackAdapter: TrackAdapter
+
+    private lateinit var trackClickDebounce: (Track) -> Unit
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        _binding = FragmentMediaBinding.inflate(inflater, container, false)
+        _binding = FragmentFavoritesBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        adapter = TrackAdapter { track ->
-            // обработка клика по треку (открыть деталь/проигрывание и т.п.)
+        trackClickDebounce = debounce(
+            delayMillis = CLICK_DEBOUNCE_DELAY,
+            coroutineScope = viewLifecycleOwner.lifecycleScope,
+            useLastParam = false
+        ) { track ->
+            openTrackDetails(track)
         }
 
-        binding.favoritesRecycler.layoutManager = LinearLayoutManager(requireContext())
-        binding.favoritesRecycler.adapter = adapter
+        initAdapters()
 
         viewModel.state.observe(viewLifecycleOwner) { state ->
             when (state) {
@@ -44,7 +63,7 @@ class FavoritesFragment : Fragment() {
                 is FavoritesScreenState.Content -> {
                     binding.favoritesEmpty.visibility = View.GONE
                     binding.favoritesRecycler.visibility = View.VISIBLE
-                    adapter.submitList(state.tracks)
+                    trackAdapter.updateData(state.tracks)
                 }
             }
         }
@@ -58,5 +77,19 @@ class FavoritesFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    private fun initAdapters() {
+        trackAdapter = TrackAdapter(mutableListOf()) { track ->
+            trackClickDebounce(track)
+        }
+        binding.favoritesRecycler.adapter = trackAdapter
+    }
+
+    private fun openTrackDetails(track: Track) {
+        val uiTrack: UiTrack = track.toUi()
+        val action = MediaFragmentDirections.actionMediaFragmentToTrackFragment(uiTrack)
+        val navController = NavHostFragment.findNavController(requireParentFragment())
+        navController.navigate(action)
     }
 }

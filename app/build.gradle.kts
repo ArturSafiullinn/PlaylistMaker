@@ -1,7 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-    kotlin("kapt")
+    id("com.google.devtools.ksp")
     id("kotlin-parcelize")
     id("androidx.navigation.safeargs.kotlin")
 }
@@ -62,7 +62,7 @@ dependencies {
 
     // Glide
     implementation("com.github.bumptech.glide:glide:4.16.0")
-    kapt("com.github.bumptech.glide:compiler:4.16.0")
+    ksp("com.github.bumptech.glide:compiler:4.16.0")
 
     // Testing
     testImplementation(libs.junit)
@@ -78,8 +78,8 @@ dependencies {
     implementation("androidx.fragment:fragment-ktx:1.5.6")
 
     // Room
-    val room_version = "2.5.1"
+    val room_version = "2.5.1" // можно и 2.6.x, но не обязательно
     implementation("androidx.room:room-runtime:$room_version")
-    kapt("androidx.room:room-compiler:$room_version")
     implementation("androidx.room:room-ktx:$room_version")
+    ksp("androidx.room:room-compiler:$room_version")   // вместо kapt
 }

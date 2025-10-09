@@ -17,10 +17,10 @@ class FavoritesViewModel(
     val state: LiveData<FavoritesScreenState> = _state
 
     init {
-        observeFavorites()
+        getFavorites()
     }
 
-    private fun observeFavorites() = viewModelScope.launch {
+    fun getFavorites() = viewModelScope.launch {
         favoritesInteractor.getFavorites()
             .distinctUntilChanged()
             .collect { list ->
