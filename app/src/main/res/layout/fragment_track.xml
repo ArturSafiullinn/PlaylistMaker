@@ -99,8 +99,7 @@
         app:layout_constraintBottom_toBottomOf="@id/play_button"
         app:layout_constraintEnd_toStartOf="@id/play_button"
         app:layout_constraintStart_toStartOf="@id/leftBorder"
-        app:layout_constraintHorizontal_chainStyle="spread_inside"
-        app:tint="@color/white" />
+        app:layout_constraintHorizontal_chainStyle="spread_inside"/>
 
     <ImageView
         android:id="@+id/play_button"
