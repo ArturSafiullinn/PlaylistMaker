@@ -7,6 +7,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.playlistmaker.R
 import com.example.playlistmaker.domain.api.AudioPlayerInteractor
+import com.example.playlistmaker.domain.db.FavoritesInteractor
+import com.example.playlistmaker.domain.models.Track
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
@@ -14,7 +16,8 @@ import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
 
 class TrackViewModel(
-    private val player: AudioPlayerInteractor
+    private val player: AudioPlayerInteractor,
+    private val favorites: FavoritesInteractor
 ) : ViewModel() {
 
     companion object {
@@ -55,10 +58,25 @@ class TrackViewModel(
     private val playerState = MutableLiveData<PlayerState>(PlayerState.Default())
     fun observePlayerState(): LiveData<PlayerState> = playerState
 
+    private val _isFavorite = MutableLiveData(false)
+    val isFavorite: LiveData<Boolean> = _isFavorite
+
+    private var currentTrack: Track? = null
+
+
     override fun onCleared() {
         stopTimer()
         player.release()
         super.onCleared()
+    }
+
+    fun bindTrack(track: Track) {
+        currentTrack = track
+        viewModelScope.launch {
+            favorites.isFavorite(track.trackId).collect {
+                _isFavorite.postValue(it)
+            }
+        }
     }
 
     fun preparePlayer(url: String) {
@@ -79,6 +97,18 @@ class TrackViewModel(
             is PlayerState.Playing -> pausePlayer()
             is PlayerState.Prepared, is PlayerState.Paused -> startPlayer()
             else -> Unit
+        }
+    }
+
+    fun onLikeButtonClicked() {
+        val track = currentTrack ?: return
+        viewModelScope.launch {
+            val nowFav = isFavorite.value == true
+            if (nowFav) {
+                favorites.remove(track.trackId)
+            } else {
+                favorites.add(track)
+            }
         }
     }
 

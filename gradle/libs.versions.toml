@@ -28,5 +28,5 @@ glide = { group = "com.github.bumptech.glide", name = "glide", version.ref = "gl
 glide-compiler = { group = "com.github.bumptech.glide", name = "compiler", version.ref = "glide"}
 
 [plugins]
-android-application = { id = "com.android.application", version = "8.9.2" }
-kotlin-android = { id = "org.jetbrains.kotlin.android", version = "1.9.10" }
+android-application = { id = "com.android.application", version.ref = "agp" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }

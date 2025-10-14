@@ -94,13 +94,12 @@
         app:layout_constraintDimensionRatio="1:1"
         app:layout_constraintWidth_percent="0.12"
         android:src="@drawable/add_to_playlist_button"
-        android:background="@drawable/gray_circle"
+        android:background="@drawable/gray_circle_like"
         app:layout_constraintTop_toTopOf="@id/play_button"
         app:layout_constraintBottom_toBottomOf="@id/play_button"
         app:layout_constraintEnd_toStartOf="@id/play_button"
         app:layout_constraintStart_toStartOf="@id/leftBorder"
-        app:layout_constraintHorizontal_chainStyle="spread_inside"
-        app:tint="@color/white" />
+        app:layout_constraintHorizontal_chainStyle="spread_inside"/>
 
     <ImageView
         android:id="@+id/play_button"
@@ -123,13 +122,12 @@
         android:layout_height="0dp"
         app:layout_constraintDimensionRatio="1:1"
         app:layout_constraintWidth_percent="0.12"
+        android:background="@drawable/gray_circle_like"
         android:src="@drawable/add_to_favorite_inactive_button"
-        android:background="@drawable/gray_circle"
         app:layout_constraintStart_toEndOf="@id/play_button"
         app:layout_constraintTop_toTopOf="@id/play_button"
         app:layout_constraintBottom_toBottomOf="@id/play_button"
-        app:layout_constraintEnd_toEndOf="@id/rightBorder"
-        app:tint="@color/white"/>
+        app:layout_constraintEnd_toEndOf="@id/rightBorder" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/leftTextBorder"
