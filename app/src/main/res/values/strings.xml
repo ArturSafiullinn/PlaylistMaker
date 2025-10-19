@@ -39,4 +39,7 @@
     <string name="error_bad_request">Некорректный запрос</string>
     <string name="error_server">Ошибка сервера: %1$d</string>
     <string name="default_track_time">00:00</string>
+    <string name="new_playlist_name">Название*</string>
+    <string name="new_playlist_description">Описание</string>
+    <string name="add_playlist_button_text">Создать</string>
 </resources>
