@@ -6,10 +6,10 @@ import com.example.playlistmaker.domain.models.Playlist
 class PlaylistDbConverter {
     fun map(playlist: Playlist) : PlaylistEntity {
         return PlaylistEntity(
-            playlistId = playlist.playlistId,
+            playlistId = playlist.playlistId ?: 0L,
             name = playlist.name,
             description = playlist.description,
-            playlistCover = playlist.playlistCover,
+            coverUri = playlist.coverUri,
             playlistTracks = playlist.playlistTracks,
             playlistLength = playlist.playlistLength
         )
@@ -20,7 +20,7 @@ class PlaylistDbConverter {
             playlistId = playlistEntity.playlistId,
             name = playlistEntity.name,
             description = playlistEntity.description,
-            playlistCover = playlistEntity.playlistCover,
+            coverUri = playlistEntity.coverUri,
             playlistTracks = playlistEntity.playlistTracks,
             playlistLength = playlistEntity.playlistLength
         )

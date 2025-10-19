@@ -9,8 +9,11 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import com.example.playlistmaker.R
 import com.example.playlistmaker.databinding.FragmentCreatePlaylistBinding
+import com.example.playlistmaker.domain.models.Playlist
+import kotlinx.coroutines.launch
 
 class CreatePlaylistFragment : Fragment() {
 
@@ -49,6 +52,17 @@ class CreatePlaylistFragment : Fragment() {
             val name = binding.inputPlaylistName.text?.toString().orEmpty().trim()
             val description = binding.inputPlaylistDescription.text?.toString().orEmpty().trim()
             val coverUri = selectedImageUri
+            val playlist = Playlist(
+                playlistId = null,
+                name = name,
+                description = description,
+                coverUri = coverUri,
+                playlistLength = 0,
+                playlistTracks = null
+            )
+            viewLifecycleOwner.lifecycleScope.launch {
+                playlistsInteractor.
+            }
 
 
         }

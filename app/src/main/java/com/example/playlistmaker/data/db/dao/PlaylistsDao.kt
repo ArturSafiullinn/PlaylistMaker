@@ -8,14 +8,14 @@ import com.example.playlistmaker.data.db.PlaylistEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-interface PlaylistDao {
+interface PlaylistsDao {
 
-    @Query("SELECT * FROM favorites ORDER BY addedAt DESC")
+    @Query("SELECT * FROM playlists ORDER BY playlistId DESC")
     fun observePlaylists(): Flow<List<PlaylistEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertPlaylist(entity: PlaylistEntity)
+    suspend fun insertPlaylist(entity: PlaylistEntity) : Long
 
-    @Query("DELETE FROM favorites WHERE trackId = :id")
-    suspend fun deletePlaylistById(id: Long)
+    @Query("DELETE FROM playlists WHERE playlistId = :playlistId")
+    suspend fun deletePlaylistById(playlistId: Long)
 }
