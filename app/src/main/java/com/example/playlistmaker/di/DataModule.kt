@@ -13,12 +13,14 @@ import com.example.playlistmaker.data.history.SearchHistoryRepositoryImpl
 import com.example.playlistmaker.data.network.NetworkClient
 import com.example.playlistmaker.data.network.NetworkClientImpl
 import com.example.playlistmaker.data.player.AudioPlayerRepositoryImpl
+import com.example.playlistmaker.data.playlists.PlaylistsRepositoryImpl
 import com.example.playlistmaker.data.settings.SettingsRepositoryImpl
 import com.example.playlistmaker.domain.api.AudioPlayerRepository
 import com.example.playlistmaker.domain.api.SearchHistoryRepository
 import com.example.playlistmaker.domain.api.SettingsRepository
 import com.example.playlistmaker.domain.api.TrackRepository
 import com.example.playlistmaker.domain.db.FavoritesRepository
+import com.example.playlistmaker.domain.db.PlaylistsRepository
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 import retrofit2.Retrofit
@@ -56,6 +58,7 @@ val dataModule = module {
     single<TrackRepository> { TrackRepositoryImpl(get(), get()) }
     single<FavoritesRepository> { FavoritesRepositoryImpl(get(), get()) }
     single<SettingsRepository> { SettingsRepositoryImpl(get()) }
+    single<PlaylistsRepository> { PlaylistsRepositoryImpl(get(), get()) }
 
     // SharedPreferences
     single<SharedPreferences> {

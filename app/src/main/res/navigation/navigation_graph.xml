@@ -12,6 +12,7 @@
             android:id="@+id/action_searchFragment_to_trackFragment"
             app:destination="@id/trackFragment" />
     </fragment>
+
     <fragment
         android:id="@+id/mediaFragment"
         android:name="com.example.playlistmaker.presentation.ui.media.MediaFragment"
@@ -23,10 +24,23 @@
             android:id="@+id/action_mediaFragment_to_createPlaylistFragment"
             app:destination="@id/createPlaylistFragment" />
     </fragment>
+
+    <fragment
+        android:id="@+id/createPlaylistFragment"
+        android:name="com.example.playlistmaker.presentation.ui.media.createPlaylist.CreatePlaylistFragment"
+        android:label="CreatePlaylistFragment">
+        <action
+            android:id="@+id/action_createPlaylistFragment_to_mediaFragment"
+            app:destination="@id/mediaFragment"
+            app:popUpTo="@id/mediaFragment"
+            app:popUpToInclusive="false"/>
+    </fragment>
+
     <fragment
         android:id="@+id/settingsFragment"
         android:name="com.example.playlistmaker.presentation.ui.settings.SettingsFragment"
         android:label="SettingsFragment" />
+
     <fragment
         android:id="@+id/trackFragment"
         android:name="com.example.playlistmaker.presentation.ui.track.TrackFragment"
