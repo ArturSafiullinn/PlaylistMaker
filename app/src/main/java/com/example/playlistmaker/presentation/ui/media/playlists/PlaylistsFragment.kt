@@ -19,6 +19,10 @@ import kotlinx.coroutines.flow.onEach
 
 class PlaylistsFragment : Fragment() {
 
+    companion object {
+        fun newInstance(): PlaylistsFragment = PlaylistsFragment()
+    }
+
     private var _binding: PlaylistsFragmentBinding? = null
     private val binding get() = _binding!!
 

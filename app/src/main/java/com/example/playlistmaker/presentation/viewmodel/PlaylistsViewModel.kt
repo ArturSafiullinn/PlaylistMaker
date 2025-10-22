@@ -2,10 +2,8 @@ package com.example.playlistmaker.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.playlistmaker.domain.db.PlaylistsInteractor
 import com.example.playlistmaker.domain.models.Playlist
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
 
 sealed interface PlaylistsState {
     object Empty : PlaylistsState
@@ -13,20 +11,21 @@ sealed interface PlaylistsState {
 }
 
 class PlaylistsViewModel(
-    private val interactor: PlaylistsInteractor
+    private val interactor: com.example.playlistmaker.domain.db.PlaylistsInteractor
 ) : ViewModel() {
 
     private val _state = MutableStateFlow<PlaylistsState>(PlaylistsState.Empty)
-    val state: StateFlow<PlaylistsState> = _state.asStateFlow()
+    val state: StateFlow<PlaylistsState> = _state
 
     fun observe() {
-        viewModelScope.launch {
-            interactor.getPlaylists() // Flow<List<Playlist>>
-                .map { list ->
-                    val sorted = list.sortedByDescending { it.playlistId ?: Long.MIN_VALUE }
-                    if (sorted.isEmpty()) PlaylistsState.Empty else PlaylistsState.Content(sorted)
+        interactor.getPlaylists() // Flow<List<Playlist>>
+            .onEach { items ->
+                _state.value = if (items.isEmpty()) {
+                    PlaylistsState.Empty
+                } else {
+                    PlaylistsState.Content(items)
                 }
-                .collect { _state.value = it }
-        }
+            }
+            .launchIn(viewModelScope)
     }
 }

@@ -5,8 +5,10 @@ import TrackRepositoryImpl
 import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
 import androidx.room.Room
+import com.example.playlistmaker.data.PlaylistDbConverter
 import com.example.playlistmaker.data.TrackDbConverter
 import com.example.playlistmaker.data.db.AppDatabase
+import com.example.playlistmaker.data.db.dao.PlaylistsDao
 import com.example.playlistmaker.data.db.dao.TrackDao
 import com.example.playlistmaker.data.favorites.FavoritesRepositoryImpl
 import com.example.playlistmaker.data.history.SearchHistoryRepositoryImpl
@@ -48,9 +50,12 @@ val dataModule = module {
             .build()
     }
     single<TrackDao> { get<AppDatabase>().trackDao() }
+    single<PlaylistsDao> { get<AppDatabase>().playlistsDao() }
+
 
     // Converters
     single { TrackDbConverter() }
+    single { PlaylistDbConverter() }
 
     // Repositories
     factory<AudioPlayerRepository> { AudioPlayerRepositoryImpl(get()) }

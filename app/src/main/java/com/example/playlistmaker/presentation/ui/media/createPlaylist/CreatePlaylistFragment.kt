@@ -5,19 +5,19 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.activity.addCallback
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import com.example.playlistmaker.R
 import com.example.playlistmaker.databinding.FragmentCreatePlaylistBinding
 import com.example.playlistmaker.presentation.viewmodel.CreatePlaylistViewModel
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class CreatePlaylistFragment : Fragment() {
 
@@ -26,15 +26,19 @@ class CreatePlaylistFragment : Fragment() {
 
     private val viewModel: CreatePlaylistViewModel by viewModel()
 
+    private lateinit var backCallback: OnBackPressedCallback
+
     private val pickImage =
         registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri: Uri? ->
-            if (uri != null) {
-                binding.playlistCover.setImageURI(uri)
-            }
+            if (uri != null) binding.playlistCover.setImageURI(uri)
             viewModel.onCoverPicked(uri)
         }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
         _binding = FragmentCreatePlaylistBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -42,9 +46,12 @@ class CreatePlaylistFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
-            viewModel.onBackPressed()
+        backCallback = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                viewModel.onBackPressed()
+            }
         }
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, backCallback)
 
         binding.backButton.setOnClickListener { viewModel.onBackPressed() }
 
@@ -62,7 +69,7 @@ class CreatePlaylistFragment : Fragment() {
         binding.addPlaylistButton.setOnClickListener { viewModel.createPlaylist() }
 
         viewModel.state.onEach { s ->
-            binding.addPlaylistButton.isEnabled = s.isCreateEnabled
+            binding.addPlaylistButton.isEnabled = s.isCreateEnabled && !s.isLoading
             binding.addPlaylistButton.setBackgroundResource(
                 if (s.isCreateEnabled) R.drawable.add_playlist_button_active_background
                 else R.drawable.add_playlist_button_inactive_background
@@ -72,7 +79,7 @@ class CreatePlaylistFragment : Fragment() {
         viewModel.events.onEach { e ->
             when (e) {
                 is CreatePlaylistEvent.ShowDiscardDialog -> {
-                    MaterialAlertDialogBuilder(requireContext())
+                    com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
                         .setTitle(e.title)
                         .setMessage(e.message)
                         .setNegativeButton(getString(R.string.cancel)) { d, _ -> d.dismiss() }
@@ -82,10 +89,13 @@ class CreatePlaylistFragment : Fragment() {
                         .show()
                 }
                 is CreatePlaylistEvent.ShowToast -> {
-                    android.widget.Toast.makeText(requireContext(), e.message, android.widget.Toast.LENGTH_SHORT).show()
+                    android.widget.Toast
+                        .makeText(requireContext(), e.message, android.widget.Toast.LENGTH_SHORT)
+                        .show()
                 }
                 is CreatePlaylistEvent.CloseScreen -> {
-                    requireActivity().onBackPressedDispatcher.onBackPressed()
+                    backCallback.isEnabled = false
+                    findNavController().popBackStack()
                 }
             }
         }.launchIn(viewLifecycleOwner.lifecycleScope)
