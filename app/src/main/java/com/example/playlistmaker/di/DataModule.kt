@@ -8,6 +8,7 @@ import androidx.room.Room
 import com.example.playlistmaker.data.PlaylistDbConverter
 import com.example.playlistmaker.data.TrackDbConverter
 import com.example.playlistmaker.data.db.AppDatabase
+import com.example.playlistmaker.data.db.dao.PlaylistTracksDao
 import com.example.playlistmaker.data.db.dao.PlaylistsDao
 import com.example.playlistmaker.data.db.dao.TrackDao
 import com.example.playlistmaker.data.favorites.FavoritesRepositoryImpl
@@ -51,6 +52,8 @@ val dataModule = module {
     }
     single<TrackDao> { get<AppDatabase>().trackDao() }
     single<PlaylistsDao> { get<AppDatabase>().playlistsDao() }
+    single<PlaylistTracksDao> { get<AppDatabase>().playlistTracksDao() }
+
 
 
     // Converters
@@ -63,7 +66,7 @@ val dataModule = module {
     single<TrackRepository> { TrackRepositoryImpl(get(), get()) }
     single<FavoritesRepository> { FavoritesRepositoryImpl(get(), get()) }
     single<SettingsRepository> { SettingsRepositoryImpl(get()) }
-    single<PlaylistsRepository> { PlaylistsRepositoryImpl(get(), get()) }
+    single<PlaylistsRepository> { PlaylistsRepositoryImpl(get(), get(), get()) }
 
     // SharedPreferences
     single<SharedPreferences> {

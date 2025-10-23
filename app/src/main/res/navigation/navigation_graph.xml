@@ -48,5 +48,8 @@
         <argument
             android:name="track"
             app:argType="com.example.playlistmaker.presentation.models.UiTrack" />
+        <action
+            android:id="@+id/action_trackFragment_to_createPlaylistFragment"
+            app:destination="@id/createPlaylistFragment" />
     </fragment>
 </navigation>

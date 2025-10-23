@@ -73,7 +73,7 @@ class CreatePlaylistViewModel(
                 val savedCoverPath = current.pickedCover?.let { coverStorage.saveCover(it) }
 
                 val playlist = Playlist(
-                    playlistId = null,
+                    playlistId = 0L,
                     name = current.name.trim(),
                     description = current.description.trim(),
                     coverUri = savedCoverPath,

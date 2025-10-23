@@ -1,7 +1,7 @@
 package com.example.playlistmaker.domain.models
 
 data class Playlist (
-    val playlistId: Long?,
+    val playlistId: Long,
     val name: String,
     val description: String,
     val coverUri: String? = null,

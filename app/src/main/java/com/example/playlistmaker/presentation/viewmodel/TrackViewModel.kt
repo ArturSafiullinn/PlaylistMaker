@@ -8,16 +8,24 @@ import androidx.lifecycle.viewModelScope
 import com.example.playlistmaker.R
 import com.example.playlistmaker.domain.api.AudioPlayerInteractor
 import com.example.playlistmaker.domain.db.FavoritesInteractor
+import com.example.playlistmaker.domain.db.PlaylistsInteractor
+import com.example.playlistmaker.domain.models.Playlist
 import com.example.playlistmaker.domain.models.Track
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
 
 class TrackViewModel(
     private val player: AudioPlayerInteractor,
-    private val favorites: FavoritesInteractor
+    private val favorites: FavoritesInteractor,
+    private val playlists: PlaylistsInteractor,           // NEW
+    private val strings: Strings
 ) : ViewModel() {
 
     companion object {
@@ -53,6 +61,25 @@ class TrackViewModel(
             progress = progress
         )
     }
+    sealed interface UiEvent {
+        data class ShowToast(val msg: String) : UiEvent
+        object OpenBottomSheet : UiEvent
+        object CloseBottomSheet : UiEvent
+        object OpenCreatePlaylist : UiEvent
+    }
+
+    interface Strings {
+        fun addedToPlaylist(name: String): String
+        fun alreadyInPlaylist(name: String): String
+    }
+
+    private val _events = kotlinx.coroutines.channels.Channel<UiEvent>(kotlinx.coroutines.channels.Channel.BUFFERED)
+    val events = _events.receiveAsFlow()
+
+    private val _playlists = MutableStateFlow<List<com.example.playlistmaker.domain.models.Playlist>>(emptyList())
+    val playlistsFlow: StateFlow<List<Playlist>> = _playlists.asStateFlow()
+
+    private var playlistsJob: Job? = null
 
     private var timerJob: Job? = null
     private val playerState = MutableLiveData<PlayerState>(PlayerState.Default())
@@ -117,6 +144,38 @@ class TrackViewModel(
             pausePlayer()
         }
     }
+
+    fun onAddToPlaylistClicked() {
+        playlistsJob?.cancel()
+        playlistsJob = viewModelScope.launch {
+            playlists.getPlaylists().collect { _playlists.value = it }
+        }
+        viewModelScope.launch { _events.send(UiEvent.OpenBottomSheet) }
+    }
+
+    fun onNewPlaylistClicked() {
+        viewModelScope.launch { _events.send(UiEvent.OpenCreatePlaylist) }
+    }
+
+    fun onPickPlaylist(playlist: com.example.playlistmaker.domain.models.Playlist) {
+        val track = currentTrack ?: return
+        // Быстрая проверка «уже есть?» по csv-id внутри плейлиста
+        val ids = com.example.playlistmaker.data.util.IdsCsv.fromCsv(playlist.playlistTracks)
+        if (ids.contains(track.trackId)) {
+            viewModelScope.launch {
+                _events.send(UiEvent.ShowToast(strings.alreadyInPlaylist(playlist.name)))
+                _events.send(UiEvent.CloseBottomSheet)
+            }
+            return
+        }
+        viewModelScope.launch {
+            val added = playlists.addTrackToPlaylist(playlist, track)
+            if (added) _events.send(UiEvent.ShowToast(strings.addedToPlaylist(playlist.name)))
+            else _events.send(UiEvent.ShowToast(strings.alreadyInPlaylist(playlist.name)))
+            _events.send(UiEvent.CloseBottomSheet)
+        }
+    }
+
 
     private fun startPlayer() {
         player.play()

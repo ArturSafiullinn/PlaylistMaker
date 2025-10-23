@@ -18,4 +18,7 @@ interface PlaylistsDao {
 
     @Query("DELETE FROM playlists WHERE playlistId = :playlistId")
     suspend fun deletePlaylistById(playlistId: Long)
+
+    @Query("UPDATE playlists SET playlistTracks = :ids, playlistLength = :count WHERE playlistId = :playlistId")
+    suspend fun updateTracks(playlistId: Long, ids: String?, count: Int)
 }
