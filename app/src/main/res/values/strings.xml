@@ -49,5 +49,6 @@
     <string name="playlist_created_format">Плейлист %s создан</string>
     <string name="playlist_cover">Плейлист %s создан</string>
     <string name="add_to_playlist_title">Добавить в плейлист</string>
-
+    <string name="added_to_playlist_fmt">Добавлено в “%1$s”</string>
+    <string name="already_in_playlist_fmt">Уже есть в “%1$s”</string>
 </resources>

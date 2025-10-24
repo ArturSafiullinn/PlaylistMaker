@@ -1,5 +1,6 @@
 package com.example.playlistmaker.di
 
+import com.example.playlistmaker.R
 import com.example.playlistmaker.presentation.viewmodel.FavoritesViewModel
 import com.example.playlistmaker.presentation.viewmodel.MainViewModel
 import com.example.playlistmaker.presentation.viewmodel.MediaViewModel
@@ -34,5 +35,15 @@ val presentationModule = module {
             coverStorage = get(),
             strings = get()
         )
+    }
+
+    factory<TrackViewModel.Strings> {
+        val ctx = androidContext()
+        object : TrackViewModel.Strings {
+            override fun addedToPlaylist(name: String): String =
+                ctx.getString(R.string.added_to_playlist_fmt, name)
+            override fun alreadyInPlaylist(name: String): String =
+                ctx.getString(R.string.already_in_playlist_fmt, name)
+        }
     }
 }

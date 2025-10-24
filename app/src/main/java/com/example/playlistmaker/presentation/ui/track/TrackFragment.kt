@@ -4,16 +4,23 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.core.view.ViewCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.example.playlistmaker.R
 import com.example.playlistmaker.databinding.FragmentTrackBinding
 import com.example.playlistmaker.presentation.mappers.toDomain
 import com.example.playlistmaker.presentation.ui.track.adapter.BsPlaylistsAdapter
 import com.example.playlistmaker.presentation.viewmodel.TrackViewModel
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class TrackFragment : Fragment() {
@@ -23,6 +30,11 @@ class TrackFragment : Fragment() {
 
     private val args: TrackFragmentArgs by navArgs()
     private val viewModel: TrackViewModel by viewModel()
+
+    companion object {
+        private const val PEEK_SCRIM_ALPHA = 0.35f
+        private const val EXPANDED_SCRIM_ALPHA = 0.75f
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -46,83 +58,110 @@ class TrackFragment : Fragment() {
             viewModel.preparePlayer(uiTrack.previewUrl!!)
         }
 
-        val track = args.track
-
-        if (track.previewUrl.isNullOrBlank()) {
-            binding.playButton.isEnabled = false
-        } else {
-            viewModel.preparePlayer(track.previewUrl!!)
-        }
-
         with(binding) {
-            trackTitle.text = track.trackName
-            trackArtist.text = track.artistName
-            valueAlbum.text = track.collectionName
-            valueYear.text = track.releaseDate
-            valueGenre.text = track.genre
-            valueCountry.text = track.country
+            trackTitle.text = uiTrack.trackName
+            trackArtist.text = uiTrack.artistName
+            valueAlbum.text = uiTrack.collectionName
+            valueYear.text = uiTrack.releaseDate
+            valueGenre.text = uiTrack.genre
+            valueCountry.text = uiTrack.country
             playbackTime.text = "00:00"
             playButton.isEnabled = false
 
             Glide.with(this@TrackFragment)
-                .load(track.artworkUrl.replace("100x100bb.jpg", "512x512bb.jpg"))
+                .load(uiTrack.artworkUrl.replace("100x100bb.jpg", "512x512bb.jpg"))
                 .placeholder(R.drawable.placeholder)
                 .into(albumCover)
 
             backButton.setOnClickListener {
                 requireActivity().onBackPressedDispatcher.onBackPressed()
             }
+            playButton.setOnClickListener { viewModel.onPlayButtonClicked() }
+            likeButton.setOnClickListener { viewModel.onLikeButtonClicked() }
+        }
 
-            playButton.setOnClickListener {
-                viewModel.onPlayButtonClicked()
-            }
+        val bottomSheet = binding.playlistsBottomSheet
+        val overlay = binding.overlay
 
-            likeButton.setOnClickListener {
-                viewModel.onLikeButtonClicked()
-            }
+        overlay.isClickable = true
 
-            binding.newPlaylistButton.setOnClickListener {
-                viewModel.onAddToPlaylistClicked()
-            }
+        val density = resources.displayMetrics.density
+        ViewCompat.setElevation(bottomSheet, 16f * density) // выше overlay
+        ViewCompat.setElevation(overlay, 8f * density)
 
-            val bottomSheet = binding.playlistsBottomSheet   // из разметки (см. пункт 3)
-            val overlay = binding.overlay
-            val behavior = com.google.android.material.bottomsheet.BottomSheetBehavior.from(bottomSheet).apply {
-                state = com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_HIDDEN
-            }
-            behavior.addBottomSheetCallback(object : com.google.android.material.bottomsheet.BottomSheetBehavior.BottomSheetCallback() {
-                override fun onStateChanged(bottom: View, newState: Int) {
-                    overlay.visibility = if (newState == com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_HIDDEN) View.GONE else View.VISIBLE
+        val behavior = BottomSheetBehavior.from(bottomSheet).apply {
+            state = BottomSheetBehavior.STATE_HIDDEN
+            skipCollapsed = false
+            isDraggable = true
+        }
+
+        behavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
+            override fun onStateChanged(bottom: View, newState: Int) {
+                when (newState) {
+                    BottomSheetBehavior.STATE_HIDDEN -> {
+                        overlay.visibility = View.GONE
+                    }
+                    BottomSheetBehavior.STATE_COLLAPSED -> {
+                        overlay.visibility = View.VISIBLE
+                        overlay.alpha = PEEK_SCRIM_ALPHA
+                    }
+                    BottomSheetBehavior.STATE_EXPANDED -> {
+                        overlay.visibility = View.VISIBLE
+                        overlay.alpha = EXPANDED_SCRIM_ALPHA
+                    }
+                    else -> Unit
                 }
-                override fun onSlide(bottom: View, slideOffset: Float) {
-                    overlay.alpha = kotlin.math.max(0f, slideOffset) // плавное затемнение
-                }
-            })
-            overlay.setOnClickListener { behavior.state = com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_HIDDEN }
-
-            val bsAdapter = BsPlaylistsAdapter { pl -> viewModel.onPickPlaylist(pl) }
-            binding.bsPlaylistsRecycler.adapter = bsAdapter
-
-            viewLifecycleOwner.lifecycleScope.launchWhenStarted {
-                viewModel.playlistsFlow.collect { bsAdapter.submitList(it) }
             }
-            viewLifecycleOwner.lifecycleScope.launchWhenStarted {
-                viewModel.events.collect { e ->
-                    when (e) {
-                        is TrackViewModel.UiEvent.OpenBottomSheet ->
-                            behavior.state = com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_COLLAPSED
-                        is TrackViewModel.UiEvent.CloseBottomSheet ->
-                            behavior.state = com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_HIDDEN
-                        is TrackViewModel.UiEvent.OpenCreatePlaylist ->
-                            findNavController().navigate(R.id.action_trackFragment_to_createPlaylistFragment)
-                        is TrackViewModel.UiEvent.ShowToast ->
-                            android.widget.Toast.makeText(requireContext(), e.msg, android.widget.Toast.LENGTH_SHORT).show()
+
+            override fun onSlide(bottom: View, slideOffset: Float) {
+                if (overlay.visibility != View.VISIBLE) overlay.visibility = View.VISIBLE
+                val t = slideOffset.coerceIn(0f, 1f)
+                overlay.alpha =
+                    PEEK_SCRIM_ALPHA + (EXPANDED_SCRIM_ALPHA - PEEK_SCRIM_ALPHA) * t
+            }
+        })
+
+        overlay.setOnClickListener {
+            behavior.state = BottomSheetBehavior.STATE_HIDDEN
+        }
+
+        val bsAdapter = BsPlaylistsAdapter { playlist ->
+            viewModel.onPickPlaylist(playlist)
+        }
+        binding.bsPlaylistsRecycler.layoutManager = LinearLayoutManager(requireContext())
+        binding.bsPlaylistsRecycler.adapter = bsAdapter
+
+        binding.addButton.setOnClickListener {
+            viewModel.onAddToPlaylistClicked()
+            behavior.state = BottomSheetBehavior.STATE_EXPANDED
+        }
+
+        binding.newPlaylistButton.setOnClickListener {
+            viewModel.onNewPlaylistClicked()
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    viewModel.playlistsFlow.collect { list ->
+                        bsAdapter.submitList(list)
+                    }
+                }
+                launch {
+                    viewModel.events.collect { e ->
+                        when (e) {
+                            is TrackViewModel.UiEvent.OpenBottomSheet ->
+                                behavior.state = BottomSheetBehavior.STATE_EXPANDED
+                            is TrackViewModel.UiEvent.CloseBottomSheet ->
+                                behavior.state = BottomSheetBehavior.STATE_HIDDEN
+                            is TrackViewModel.UiEvent.OpenCreatePlaylist ->
+                                findNavController().navigate(R.id.action_trackFragment_to_createPlaylistFragment)
+                            is TrackViewModel.UiEvent.ShowToast ->
+                                Toast.makeText(requireContext(), e.msg, Toast.LENGTH_SHORT).show()
+                        }
                     }
                 }
             }
-
-            binding.newPlaylistButton.setOnClickListener { viewModel.onNewPlaylistClicked() }
-
         }
 
         viewModel.observePlayerState().observe(viewLifecycleOwner) { state ->
@@ -131,13 +170,11 @@ class TrackFragment : Fragment() {
             binding.playbackTime.text = state.progress
         }
 
-        viewModel.isFavorite.observe(viewLifecycleOwner) {isFavorite ->
-            if (isFavorite) {
-                binding.likeButton.setImageResource(R.drawable.add_to_favorite_active_button)
-            }
-            else {
-                binding.likeButton.setImageResource(R.drawable.add_to_favorite_inactive_button)
-            }
+        viewModel.isFavorite.observe(viewLifecycleOwner) { isFavorite ->
+            binding.likeButton.setImageResource(
+                if (isFavorite) R.drawable.add_to_favorite_active_button
+                else R.drawable.add_to_favorite_inactive_button
+            )
         }
     }
 

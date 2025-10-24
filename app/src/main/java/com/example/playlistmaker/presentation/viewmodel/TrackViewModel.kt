@@ -12,6 +12,7 @@ import com.example.playlistmaker.domain.db.PlaylistsInteractor
 import com.example.playlistmaker.domain.models.Playlist
 import com.example.playlistmaker.domain.models.Track
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -24,12 +25,12 @@ import java.util.concurrent.TimeUnit
 class TrackViewModel(
     private val player: AudioPlayerInteractor,
     private val favorites: FavoritesInteractor,
-    private val playlists: PlaylistsInteractor,           // NEW
+    private val playlists: PlaylistsInteractor,
     private val strings: Strings
 ) : ViewModel() {
 
     companion object {
-        private const val CLICK_DEBOUNCE_DELAY = 300L
+        private const val TICK_DELAY = 300L
     }
 
     sealed class PlayerState(
@@ -37,30 +38,12 @@ class TrackViewModel(
         @DrawableRes val buttonIcon: Int,
         val progress: String
     ) {
-        class Default : PlayerState(
-            isPlayButtonEnabled = false,
-            buttonIcon = R.drawable.play_button,
-            progress = "00:00"
-        )
-
-        class Prepared : PlayerState(
-            isPlayButtonEnabled = true,
-            buttonIcon = R.drawable.play_button,
-            progress = "00:00"
-        )
-
-        class Playing(progress: String) : PlayerState(
-            isPlayButtonEnabled = true,
-            buttonIcon = R.drawable.pause_button,
-            progress = progress
-        )
-
-        class Paused(progress: String) : PlayerState(
-            isPlayButtonEnabled = true,
-            buttonIcon = R.drawable.play_button,
-            progress = progress
-        )
+        class Default : PlayerState(false, R.drawable.play_button, "00:00")
+        class Prepared : PlayerState(true, R.drawable.play_button, "00:00")
+        class Playing(progress: String) : PlayerState(true, R.drawable.pause_button, progress)
+        class Paused(progress: String) : PlayerState(true, R.drawable.play_button, progress)
     }
+
     sealed interface UiEvent {
         data class ShowToast(val msg: String) : UiEvent
         object OpenBottomSheet : UiEvent
@@ -73,15 +56,15 @@ class TrackViewModel(
         fun alreadyInPlaylist(name: String): String
     }
 
-    private val _events = kotlinx.coroutines.channels.Channel<UiEvent>(kotlinx.coroutines.channels.Channel.BUFFERED)
+    private val _events = Channel<UiEvent>(Channel.BUFFERED)
     val events = _events.receiveAsFlow()
 
-    private val _playlists = MutableStateFlow<List<com.example.playlistmaker.domain.models.Playlist>>(emptyList())
+    private val _playlists = MutableStateFlow<List<Playlist>>(emptyList())
     val playlistsFlow: StateFlow<List<Playlist>> = _playlists.asStateFlow()
 
     private var playlistsJob: Job? = null
-
     private var timerJob: Job? = null
+
     private val playerState = MutableLiveData<PlayerState>(PlayerState.Default())
     fun observePlayerState(): LiveData<PlayerState> = playerState
 
@@ -89,7 +72,6 @@ class TrackViewModel(
     val isFavorite: LiveData<Boolean> = _isFavorite
 
     private var currentTrack: Track? = null
-
 
     override fun onCleared() {
         stopTimer()
@@ -100,8 +82,8 @@ class TrackViewModel(
     fun bindTrack(track: Track) {
         currentTrack = track
         viewModelScope.launch {
-            favorites.isFavorite(track.trackId).collect {
-                _isFavorite.postValue(it)
+            favorites.isFavorite(track.trackId).collect { fav ->
+                _isFavorite.postValue(fav)
             }
         }
     }
@@ -109,9 +91,7 @@ class TrackViewModel(
     fun preparePlayer(url: String) {
         player.prepare(
             url = url,
-            onReady = {
-                playerState.postValue(PlayerState.Prepared())
-            },
+            onReady = { playerState.postValue(PlayerState.Prepared()) },
             onCompletion = {
                 stopTimer()
                 playerState.postValue(PlayerState.Prepared())
@@ -130,25 +110,19 @@ class TrackViewModel(
     fun onLikeButtonClicked() {
         val track = currentTrack ?: return
         viewModelScope.launch {
-            val nowFav = isFavorite.value == true
-            if (nowFav) {
-                favorites.remove(track.trackId)
-            } else {
-                favorites.add(track)
-            }
+            if (isFavorite.value == true) favorites.remove(track.trackId)
+            else favorites.add(track)
         }
     }
 
     fun onPause() {
-        if (player.isPlaying()) {
-            pausePlayer()
-        }
+        if (player.isPlaying()) pausePlayer()
     }
 
     fun onAddToPlaylistClicked() {
         playlistsJob?.cancel()
         playlistsJob = viewModelScope.launch {
-            playlists.getPlaylists().collect { _playlists.value = it }
+            playlists.getPlaylists().collect { list -> _playlists.value = list }
         }
         viewModelScope.launch { _events.send(UiEvent.OpenBottomSheet) }
     }
@@ -157,25 +131,21 @@ class TrackViewModel(
         viewModelScope.launch { _events.send(UiEvent.OpenCreatePlaylist) }
     }
 
-    fun onPickPlaylist(playlist: com.example.playlistmaker.domain.models.Playlist) {
+    fun onPickPlaylist(playlist: Playlist) {
         val track = currentTrack ?: return
-        // Быстрая проверка «уже есть?» по csv-id внутри плейлиста
         val ids = com.example.playlistmaker.data.util.IdsCsv.fromCsv(playlist.playlistTracks)
-        if (ids.contains(track.trackId)) {
-            viewModelScope.launch {
+        viewModelScope.launch {
+            if (ids.contains(track.trackId)) {
                 _events.send(UiEvent.ShowToast(strings.alreadyInPlaylist(playlist.name)))
                 _events.send(UiEvent.CloseBottomSheet)
+                return@launch
             }
-            return
-        }
-        viewModelScope.launch {
             val added = playlists.addTrackToPlaylist(playlist, track)
             if (added) _events.send(UiEvent.ShowToast(strings.addedToPlaylist(playlist.name)))
             else _events.send(UiEvent.ShowToast(strings.alreadyInPlaylist(playlist.name)))
             _events.send(UiEvent.CloseBottomSheet)
         }
     }
-
 
     private fun startPlayer() {
         player.play()
@@ -196,7 +166,7 @@ class TrackViewModel(
                 playerState.postValue(
                     PlayerState.Playing(formatMillis(player.getCurrentPosition()))
                 )
-                delay(CLICK_DEBOUNCE_DELAY)
+                delay(TICK_DELAY)
             }
         }
     }
