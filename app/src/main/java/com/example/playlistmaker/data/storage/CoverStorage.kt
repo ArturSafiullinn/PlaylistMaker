@@ -26,7 +26,7 @@ class CoverStorageImpl(private val appContext: Context) : CoverStorage {
                     output.flush()
                 }
             }
-            outFile.absolutePath // строка для БД
+            outFile.absolutePath 
         } catch (_: Exception) { null }
     }
 }

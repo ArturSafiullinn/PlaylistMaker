@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.example.playlistmaker.R
+import java.io.File
 
 class BsPlaylistsAdapter(
     private val onClick: (com.example.playlistmaker.domain.models.Playlist) -> Unit
@@ -33,11 +34,11 @@ class BsVH(v: View, private val onClick: (com.example.playlistmaker.domain.model
     val cornerRadiusPx = (2 * itemView.resources.displayMetrics.density).toInt()
     fun bind(item: com.example.playlistmaker.domain.models.Playlist) {
         title.text = item.name
-        count.text = "${item.playlistLength} треков"
+        count.text = itemView.context.getString(R.string.playlist_tracks_count, item.playlistLength)
         val uri = item.coverUri
         if (uri.isNullOrBlank()) cover.setImageResource(R.drawable.album_placeholder)
         else Glide.with(cover).
-        load(android.net.Uri.parse(uri))
+        load(File(uri))
             .placeholder(R.drawable.album_placeholder)
             .centerCrop()
             .transform(RoundedCorners(cornerRadiusPx))

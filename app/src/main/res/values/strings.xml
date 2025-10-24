@@ -51,4 +51,5 @@
     <string name="add_to_playlist_title">Добавить в плейлист</string>
     <string name="added_to_playlist_fmt">Добавлено в “%1$s”</string>
     <string name="already_in_playlist_fmt">Уже есть в “%1$s”</string>
+    <string name="playlist_tracks_count">%1$d треков</string>
 </resources>

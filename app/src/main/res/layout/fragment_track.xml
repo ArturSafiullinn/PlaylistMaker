@@ -333,7 +333,9 @@
         android:background="@drawable/bottom_sheet_bg"
         app:behavior_hideable="true"
         app:behavior_peekHeight="300dp"
-        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
+        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
+        app:behavior_fitToContents="false"
+        app:behavior_halfExpandedRatio="0.5">
 
         <TextView
             android:layout_width="match_parent"
@@ -359,7 +361,6 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:padding="12dp"
             android:clipToPadding="false"
             tools:listitem="@layout/item_bs_playlist"/>
     </LinearLayout>

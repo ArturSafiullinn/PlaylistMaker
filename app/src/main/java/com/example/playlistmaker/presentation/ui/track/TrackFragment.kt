@@ -86,13 +86,14 @@ class TrackFragment : Fragment() {
         overlay.isClickable = true
 
         val density = resources.displayMetrics.density
-        ViewCompat.setElevation(bottomSheet, 16f * density) // выше overlay
+        ViewCompat.setElevation(bottomSheet, 16f * density)
         ViewCompat.setElevation(overlay, 8f * density)
 
         val behavior = BottomSheetBehavior.from(bottomSheet).apply {
             state = BottomSheetBehavior.STATE_HIDDEN
             skipCollapsed = false
             isDraggable = true
+            peekHeight = (300 * density).toInt()
         }
 
         behavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
@@ -133,7 +134,7 @@ class TrackFragment : Fragment() {
 
         binding.addButton.setOnClickListener {
             viewModel.onAddToPlaylistClicked()
-            behavior.state = BottomSheetBehavior.STATE_EXPANDED
+            behavior.state = BottomSheetBehavior.STATE_COLLAPSED // ← изменено
         }
 
         binding.newPlaylistButton.setOnClickListener {
@@ -151,7 +152,7 @@ class TrackFragment : Fragment() {
                     viewModel.events.collect { e ->
                         when (e) {
                             is TrackViewModel.UiEvent.OpenBottomSheet ->
-                                behavior.state = BottomSheetBehavior.STATE_EXPANDED
+                                behavior.state = BottomSheetBehavior.STATE_COLLAPSED // ← изменено
                             is TrackViewModel.UiEvent.CloseBottomSheet ->
                                 behavior.state = BottomSheetBehavior.STATE_HIDDEN
                             is TrackViewModel.UiEvent.OpenCreatePlaylist ->

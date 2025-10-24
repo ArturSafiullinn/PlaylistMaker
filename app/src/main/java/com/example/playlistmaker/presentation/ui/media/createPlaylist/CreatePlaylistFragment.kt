@@ -12,6 +12,9 @@ import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners
+import com.bumptech.glide.request.RequestOptions
 import com.example.playlistmaker.R
 import com.example.playlistmaker.databinding.FragmentCreatePlaylistBinding
 import com.example.playlistmaker.presentation.viewmodel.CreatePlaylistViewModel
@@ -30,7 +33,16 @@ class CreatePlaylistFragment : Fragment() {
 
     private val pickImage =
         registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri: Uri? ->
-            if (uri != null) binding.playlistCover.setImageURI(uri)
+            if (uri != null) {
+                Glide.with(this)
+                    .load(uri)
+                    .centerCrop()
+                    .apply(
+                        RequestOptions()
+                            .transform(RoundedCorners(resources.getDimensionPixelSize(R.dimen.playlist_cover_corner_radius)))
+                    )
+                    .into(binding.playlistCover)
+            }
             viewModel.onCoverPicked(uri)
         }
 
