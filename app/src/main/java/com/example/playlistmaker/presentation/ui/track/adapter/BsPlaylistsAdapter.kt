@@ -31,7 +31,6 @@ class BsVH(v: View, private val onClick: (com.example.playlistmaker.domain.model
     private val cover = v.findViewById<ImageView>(R.id.cover)
     private val title = v.findViewById<TextView>(R.id.title)
     private val count = v.findViewById<TextView>(R.id.count)
-    val cornerRadiusPx = (2 * itemView.resources.displayMetrics.density).toInt()
     fun bind(item: com.example.playlistmaker.domain.models.Playlist) {
         title.text = item.name
         count.text = itemView.context.getString(R.string.playlist_tracks_count, item.playlistLength)
@@ -41,7 +40,6 @@ class BsVH(v: View, private val onClick: (com.example.playlistmaker.domain.model
         load(File(uri))
             .placeholder(R.drawable.album_placeholder)
             .centerCrop()
-            .transform(RoundedCorners(cornerRadiusPx))
             .into(cover)
         itemView.setOnClickListener { onClick(item) }
     }

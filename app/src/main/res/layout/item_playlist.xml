@@ -17,13 +17,12 @@
         android:layout_height="wrap_content"
         android:padding="0dp">
 
-        <ImageView
+        <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/cover"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:scaleType="centerCrop"
-            android:contentDescription="@string/playlist_cover"
-            android:src="@drawable/placeholder"
+            app:shapeAppearanceOverlay="@style/PlaylistItemImageShape"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

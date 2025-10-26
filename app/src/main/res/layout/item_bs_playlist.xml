@@ -1,5 +1,6 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="64dp"
@@ -9,13 +10,13 @@
     android:clickable="true"
     android:focusable="true">
 
-    <ImageView
+    <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/cover"
         android:layout_width="45dp"
         android:layout_height="45dp"
         android:scaleType="centerCrop"
-        android:src="@drawable/album_placeholder"
-        android:contentDescription="@string/playlist_cover"/>
+        app:shapeAppearanceOverlay="@style/BsPlaylistItemImageShape"
+        app:layout_constraintDimensionRatio="1:1"/>
 
     <LinearLayout
         android:orientation="vertical"
