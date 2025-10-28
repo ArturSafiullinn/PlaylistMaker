@@ -52,4 +52,8 @@
     <string name="added_to_playlist_fmt">Добавлено в “%1$s”</string>
     <string name="already_in_playlist_fmt">Уже есть в “%1$s”</string>
     <string name="playlist_tracks_count">%1$d треков</string>
+    <string name="back">Назад</string>
+    <string name="share">Поделиться</string>
+    <string name="menu">Меню</string>
+
 </resources>
