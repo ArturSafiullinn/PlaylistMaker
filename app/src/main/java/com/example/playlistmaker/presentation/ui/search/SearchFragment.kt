@@ -79,12 +79,18 @@ class SearchFragment : Fragment() {
     }
 
     private fun initAdapters() {
-        trackAdapter = TrackAdapter(mutableListOf()) { track ->
-            trackClickDebounce(track)
-        }
-        historyAdapter = TrackAdapter(mutableListOf()) { track ->
-            trackClickDebounce(track)
-        }
+        trackAdapter = TrackAdapter(
+            mutableListOf(),
+            onItemClick = { track ->
+            trackClickDebounce(track) },
+            onItemLongClick = {}
+        )
+        historyAdapter = TrackAdapter(
+            mutableListOf(),
+            onItemClick = { track ->
+                trackClickDebounce(track) },
+            onItemLongClick = {}
+        )
         binding.recyclerView.adapter = trackAdapter
         binding.historyRecycler.adapter = historyAdapter
     }
