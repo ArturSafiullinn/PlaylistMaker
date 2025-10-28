@@ -39,4 +39,17 @@
     <string name="error_bad_request">Некорректный запрос</string>
     <string name="error_server">Ошибка сервера: %1$d</string>
     <string name="default_track_time">00:00</string>
+    <string name="new_playlist_name">Название*</string>
+    <string name="new_playlist_description">Описание</string>
+    <string name="add_playlist_button_text">Создать</string>
+    <string name="finish_playlist_creation_title">Завершить создание плейлиста?</string>
+    <string name="unsaved_data_will_be_lost">Все несохраненные данные будут потеряны</string>
+    <string name="cancel">Отмена</string>
+    <string name="finish">Завершить</string>
+    <string name="playlist_created_format">Плейлист %s создан</string>
+    <string name="playlist_cover">Плейлист %s создан</string>
+    <string name="add_to_playlist_title">Добавить в плейлист</string>
+    <string name="added_to_playlist_fmt">Добавлено в “%1$s”</string>
+    <string name="already_in_playlist_fmt">Уже есть в “%1$s”</string>
+    <string name="playlist_tracks_count">%1$d треков</string>
 </resources>

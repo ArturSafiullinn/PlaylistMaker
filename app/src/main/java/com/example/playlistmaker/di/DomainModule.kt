@@ -4,6 +4,7 @@ import com.example.playlistmaker.domain.interactor.SearchHistoryInteractorImpl
 import com.example.playlistmaker.domain.api.*
 import com.example.playlistmaker.domain.db.FavoritesInteractor
 import com.example.playlistmaker.domain.db.FavoritesRepository
+import com.example.playlistmaker.domain.db.PlaylistsInteractor
 import com.example.playlistmaker.domain.impl.*
 import org.koin.dsl.module
 
@@ -20,4 +21,7 @@ val domainModule = module {
     single<FavoritesRepository> { FavoritesRepositoryImpl(get(), get()) }
 
     single<FavoritesInteractor> { FavoritesInteractorImpl (get()) }
+
+    single< PlaylistsInteractor> { PlaylistsInteractorImpl (get()) }
+
 }
