@@ -38,7 +38,11 @@ class PlaylistsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         adapter = PlaylistsAdapter { playlist ->
-            // TODO: открыть детали плейлиста
+            val action = MediaFragmentDirections
+                .actionMediaFragmentToPlaylistDetailsFragment(playlist.playlistId)
+            requireParentFragment()
+                .findNavController()
+                .navigate(action)
         }
 
         binding.playlistsRecycler.layoutManager = GridLayoutManager(requireContext(), 2)

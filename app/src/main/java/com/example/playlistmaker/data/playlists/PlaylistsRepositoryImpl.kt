@@ -9,6 +9,8 @@ import com.example.playlistmaker.domain.db.PlaylistsRepository
 import com.example.playlistmaker.domain.models.Playlist
 import com.example.playlistmaker.domain.models.Track
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 
 class PlaylistsRepositoryImpl(
@@ -41,6 +43,49 @@ class PlaylistsRepositoryImpl(
             count = newIds.size
         )
         return true
+    }
+
+    override fun observePlaylistWithTracks(
+        playlistId: Long
+    ): Flow<Pair<Playlist, List<Track>>> =
+        playlistsDao.observePlaylistById(playlistId) // Flow<PlaylistEntity>
+            .flatMapLatest { entity ->
+                val playlist = converter.mapToDomain(entity)
+                val ids = IdsCsv.fromCsv(entity.playlistTracks)
+                if (ids.isEmpty()) {
+                    flowOf(playlist to emptyList())
+                } else {
+                    // Наблюдаем треки по списку id и сохраняем исходный порядок
+                    playlistTracksDao.observeByIds(ids) // Flow<List<PlaylistTrackEntity>>
+                        .map { entities ->
+                            val byId = entities.associateBy { it.trackId }
+                            val ordered = ids.mapNotNull { id ->
+                                byId[id]?.let { converter.mapTrackEntityToDomain(it) }
+                            }
+                            playlist to ordered
+                        }
+                }
+            }
+
+    override suspend fun removeTrackFromPlaylist(playlistId: Long, trackId: Long) {
+        // Получаем текущий плейлист
+        val entity = playlistsDao.getPlaylistById(playlistId)
+        val ids = IdsCsv.fromCsv(entity.playlistTracks).toMutableList()
+
+        // Удаляем id трека из csv, если он там есть
+        val removed = ids.remove(trackId)
+        if (!removed) return
+
+        // Обновляем csv и счётчик треков
+        playlistsDao.updateTracks(
+            playlistId = playlistId,
+            ids = IdsCsv.toCsv(ids),
+            count = ids.size
+        )
+
+        // ВАЖНО: сам трек из таблицы треков не удаляем,
+        // т.к. он может использоваться в других плейлистах.
+        // (Если нужна «чистка сирот», это делается отдельной логикой)
     }
 
     private fun Track.toPlaylistTrackEntity() = PlaylistTrackEntity(

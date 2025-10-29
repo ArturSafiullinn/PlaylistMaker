@@ -21,4 +21,10 @@ interface PlaylistsDao {
 
     @Query("UPDATE playlists SET playlistTracks = :ids, playlistLength = :count WHERE playlistId = :playlistId")
     suspend fun updateTracks(playlistId: Long, ids: String?, count: Int)
+
+    @Query("SELECT * FROM playlists WHERE playlistId = :id")
+    fun observePlaylistById(id: Long): Flow<PlaylistEntity>
+
+    @Query("SELECT * FROM playlists WHERE playlistId = :id")
+    suspend fun getPlaylistById(id: Long): PlaylistEntity
 }

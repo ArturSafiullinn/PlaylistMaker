@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
 import androidx.activity.addCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.core.os.bundleOf
@@ -15,7 +16,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
@@ -23,6 +23,7 @@ import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.example.playlistmaker.R
 import com.example.playlistmaker.databinding.FragmentPlaylistDetailsBinding
 import com.example.playlistmaker.domain.models.Track
+import com.example.playlistmaker.presentation.ui.media.playlists.PlaylistDetailsViewModel
 import com.example.playlistmaker.presentation.ui.search.adapter.TrackAdapter
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import kotlinx.coroutines.launch
@@ -37,8 +38,8 @@ class PlaylistDetailsFragment : Fragment() {
     private val args: PlaylistDetailsFragmentArgs by navArgs()
     private val viewModel: PlaylistDetailsViewModel by viewModel()
 
-    private lateinit var bottomSheetBehavior: BottomSheetBehavior<View>
-    private lateinit var adapter: TracksInPlaylistAdapter
+    private lateinit var bottomSheetBehavior: BottomSheetBehavior<LinearLayout>
+    private lateinit var adapter: TrackAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -123,7 +124,7 @@ class PlaylistDetailsFragment : Fragment() {
     private fun render(state: PlaylistDetailsUiState) = with(binding) {
         // Обложка
         val corner = resources.getDimensionPixelSize(R.dimen.corner_radius_8)
-        val coverPath = state.coverPath
+        val coverPath = state.playlist?.coverUri
         if (!coverPath.isNullOrBlank()) {
             Glide.with(cover)
                 .load(File(coverPath))
@@ -137,13 +138,13 @@ class PlaylistDetailsFragment : Fragment() {
         }
 
         // Инфо
-        title.text = state.title
+        title.text = state.playlist?.name
         description.apply {
-            text = state.description.orEmpty()
-            visibility = if (state.description.isNullOrBlank()) View.GONE else View.VISIBLE
+            text = state.playlist?.description.orEmpty()
+            visibility = if (state.playlist?.description.isNullOrBlank()) View.GONE else View.VISIBLE
         }
         meta.text = getString(
-            R.string.playlist_meta_template, // напр. "%1$s · %2$s"
+            R.string.playlist_meta_template,
             formatDurationMinutes(state.totalDurationMinutes),
             resources.getQuantityString(
                 R.plurals.tracks_count, state.tracks.size, state.tracks.size
@@ -151,7 +152,7 @@ class PlaylistDetailsFragment : Fragment() {
         )
 
         // Список треков
-        adapter.submitList(state.tracks)
+        adapter.updateData(state.tracks)
 
         // Обновим peekHeight на случай, если высота header изменилась (например, скрыли описание)
         playlistDetailsRoot.doOnLayout {

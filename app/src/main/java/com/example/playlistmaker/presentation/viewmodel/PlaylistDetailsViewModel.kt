@@ -3,7 +3,6 @@ package com.example.playlistmaker.presentation.ui.media.playlists
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.playlistmaker.domain.api.PlaylistDetailsInteractor
-import com.example.playlistmaker.domain.models.Playlist
 import com.example.playlistmaker.domain.models.Track
 import com.example.playlistmaker.presentation.ui.media.playlistDetails.PlaylistDetailsUiState
 import kotlinx.coroutines.Job
@@ -28,12 +27,12 @@ class PlaylistDetailsViewModel(
             _state.update { it.copy(isLoading = true, error = null) }
 
             interactor.observePlaylistWithTracks(playlistId).collectLatest { (playlist, tracks) ->
-                val totalMinutes = tracks.sumOf { (it.trackTimeMillis ?: 0) / 60000 }
+                val totalMinutes = tracks.sumOf { (it.trackTime ?: 0) / 60000 }
                 _state.update {
                     it.copy(
                         playlist = playlist,
                         tracks = tracks,
-                        totalDurationMinutes = totalMinutes,
+                        totalDurationMinutes = totalMinutes.toInt(),
                         isLoading = false
                     )
                 }

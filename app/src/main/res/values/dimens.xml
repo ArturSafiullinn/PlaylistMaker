@@ -2,4 +2,5 @@
 <resources>
     <dimen name="text_margin">16dp</dimen>
     <dimen name="playlist_cover_corner_radius">8dp</dimen>
+    <dimen name="corner_radius_8">8dp</dimen>
 </resources>
