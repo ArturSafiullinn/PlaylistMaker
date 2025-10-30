@@ -1,5 +1,6 @@
 package com.example.playlistmaker.presentation.ui.search.adapter
 
+import android.util.Log
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
@@ -16,6 +17,8 @@ class TrackViewHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
     private val artWorkUrl: ImageView = itemView.findViewById(R.id.album_image)
 
     fun bind(track: Track) {
+        Log.d("PlaylistCover", "artworkUrl = ${track.artworkUrl}")
+
         trackName.text = track.trackName.trim()
         trackArtist.text = track.artistName.trim()
         trackDuration.text = formatDurationMs(track.trackTime)

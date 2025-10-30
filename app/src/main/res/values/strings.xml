@@ -60,4 +60,6 @@
     <string name="no">Нет</string>
     <string name="playlist_meta_template">%1$s · %2$s</string>
     <string name="hh_mm_template">%1$d ч %2$d мин</string>
+    <string name="edit_info">Редактировать информацию</string>
+    <string name="delete_playlist">Удалить плейлист</string>
 </resources>
