@@ -9,6 +9,8 @@ import android.widget.LinearLayout
 import androidx.activity.addCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.core.os.bundleOf
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.doOnLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
@@ -23,6 +25,7 @@ import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.example.playlistmaker.R
 import com.example.playlistmaker.databinding.FragmentPlaylistDetailsBinding
 import com.example.playlistmaker.domain.models.Track
+import com.example.playlistmaker.presentation.mappers.toUi
 import com.example.playlistmaker.presentation.ui.media.playlists.PlaylistDetailsViewModel
 import com.example.playlistmaker.presentation.ui.search.adapter.TrackAdapter
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -30,7 +33,8 @@ import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.io.File
 
-class PlaylistDetailsFragment : Fragment() {
+
+class PlaylistDetailsFragment : Fragment(), PlaylistMenuBottomSheet.Callbacks {
 
     private var _binding: FragmentPlaylistDetailsBinding? = null
     private val binding get() = _binding!!
@@ -43,7 +47,6 @@ class PlaylistDetailsFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // Обработка системной «Назад»
         requireActivity().onBackPressedDispatcher.addCallback(this) {
             findNavController().navigateUp()
         }
@@ -59,25 +62,27 @@ class PlaylistDetailsFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        // --- BottomSheet ---
         bottomSheetBehavior = BottomSheetBehavior.from(binding.playlistsBottomSheet).apply {
-            isHideable = false            // Нельзя скрыть
+            isHideable = false
             skipCollapsed = false
             isDraggable = true
-            // fitToContents = false уже задан в layout через app:behavior_fitToContents="false"
             state = BottomSheetBehavior.STATE_COLLAPSED
         }
 
-        // Делаем так, чтобы верхняя кромка шита была сразу под блоком header/info_card
-        // после раскладки вьюх посчитаем нужный peekHeight
+        bottomSheetBehavior.isFitToContents = false
+
+        ViewCompat.setOnApplyWindowInsetsListener(binding.playlistDetailsRoot) { _, insets ->
+            val topInset = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
+            bottomSheetBehavior.expandedOffset = topInset
+            insets
+        }
+
         binding.playlistDetailsRoot.doOnLayout {
             val rootH = binding.playlistDetailsRoot.height
             val headerBottom = binding.header.bottom
-            val peek = (rootH - headerBottom).coerceAtLeast(0)
-            bottomSheetBehavior.peekHeight = peek
+            bottomSheetBehavior.peekHeight = (rootH - headerBottom).coerceAtLeast(0)
         }
 
-        // --- RecyclerView + Adapter ---
         adapter = TrackAdapter(
             mutableListOf(),
             onItemClick = { track -> openPlayer(track) },
@@ -88,41 +93,45 @@ class PlaylistDetailsFragment : Fragment() {
             adapter = this@PlaylistDetailsFragment.adapter
         }
 
-        // --- Кнопки ---
         binding.backButton.setOnClickListener { findNavController().navigateUp() }
 
         binding.shareButton.setOnClickListener {
-            // Берём подготовленные данные у VM и вызываем системный share
             val shareText = viewModel.buildShareText()
-            if (shareText.isNullOrBlank()) {
-                // Нечем делиться (например, пустой плейлист)
-                // Можно показать тост/снекбар по вкусу
-                return@setOnClickListener
-            }
-            shareText(shareText)
+            if (!shareText.isNullOrBlank()) shareText(shareText)
         }
 
-        binding.menuButton.setOnClickListener {
-            // Тут можно открыть BottomSheetDialog / PopupMenu с пунктами «Редактировать», «Удалить плейлист», «Очистить»
-            // Для краткости опустим реализацию меню
-        }
+        binding.menuButton.setOnClickListener { showMenuBottomSheet() }
 
-        // --- Подписки на состояние ---
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.state.collect { state ->
                     adapter.updateData(state.tracks)
-                    render(state) // остальное оформление
+                    render(state)
                 }
             }
         }
 
-        // Стартовая загрузка
         viewModel.load(args.playlistId)
     }
 
+    private fun showMenuBottomSheet() {
+        bottomSheetBehavior.isDraggable = false
+        bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+
+        val s = viewModel.state.value
+        val pl = s.playlist ?: return
+        val meta = getString(
+            R.string.playlist_meta_template,
+            formatDurationMinutes(s.totalDurationMinutes),
+            resources.getQuantityString(R.plurals.tracks_count, s.tracks.size, s.tracks.size)
+        )
+
+        PlaylistMenuBottomSheet
+            .newInstance(pl.playlistId, pl.name, pl.coverUri, meta)
+            .show(childFragmentManager, PlaylistMenuBottomSheet.TAG)
+    }
+
     private fun render(state: PlaylistDetailsUiState) = with(binding) {
-        // Обложка
         val corner = resources.getDimensionPixelSize(R.dimen.corner_radius_8)
         val coverPath = state.playlist?.coverUri
         if (!coverPath.isNullOrBlank()) {
@@ -137,7 +146,6 @@ class PlaylistDetailsFragment : Fragment() {
             cover.setImageResource(R.drawable.placeholder)
         }
 
-        // Инфо
         title.text = state.playlist?.name
         description.apply {
             text = state.playlist?.description.orEmpty()
@@ -151,10 +159,6 @@ class PlaylistDetailsFragment : Fragment() {
             )
         )
 
-        // Список треков
-        adapter.updateData(state.tracks)
-
-        // Обновим peekHeight на случай, если высота header изменилась (например, скрыли описание)
         playlistDetailsRoot.doOnLayout {
             val rootH = playlistDetailsRoot.height
             val headerBottom = header.bottom
@@ -170,14 +174,10 @@ class PlaylistDetailsFragment : Fragment() {
     }
 
     private fun openPlayer(track: Track) {
-        // Вариант 1: Safe Args (если объявлен action из этого фрагмента в трек)
-        // val action = PlaylistDetailsFragmentDirections.actionPlaylistDetailsFragmentToTrackFragment(track)
-        // findNavController().navigate(action)
-
-        // Вариант 2: глобальный переход по id фрагмента
+        val uiTrack = track.toUi()
         findNavController().navigate(
             R.id.trackFragment,
-            bundleOf("track" to track) // ключ как в аргументах TrackFragment
+            bundleOf("track" to uiTrack)
         )
     }
 
@@ -197,6 +197,28 @@ class PlaylistDetailsFragment : Fragment() {
             putExtra(Intent.EXTRA_TEXT, text)
         }
         startActivity(Intent.createChooser(intent, getString(R.string.share)))
+    }
+
+    override fun onShareFromMenu() {
+        val shareText = viewModel.buildShareText()
+        if (!shareText.isNullOrBlank()) shareText(shareText)
+    }
+
+    override fun onDeleteFromMenu() {
+        AlertDialog.Builder(requireContext())
+            .setTitle(R.string.delete_playlist)
+            .setMessage(R.string.remove_playlist_question)
+            .setNegativeButton(R.string.no, null)
+            .setPositiveButton(R.string.yes) { _, _ ->
+                viewModel.deletePlaylist()
+                findNavController().navigateUp()
+            }
+            .show()
+    }
+
+    override fun onMenuDismissed() {
+        bottomSheetBehavior.isDraggable = true
+        bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
     }
 
     override fun onDestroyView() {

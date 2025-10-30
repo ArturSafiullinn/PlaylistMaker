@@ -57,7 +57,8 @@ class PlaylistDetailsViewModel(
         if (tracks.isEmpty()) return ""
 
         val header = "Плейлист: ${playlist.name}\n"
-        val desc = if (playlist.description.isNotBlank()) "Описание: ${playlist.description}\n" else ""
+        val desc =
+            if (playlist.description.isNotBlank()) "Описание: ${playlist.description}\n" else ""
         val list = tracks.joinToString("\n") { "• ${it.artistName} — ${it.trackName}" }
 
         return buildString {
@@ -65,6 +66,14 @@ class PlaylistDetailsViewModel(
             append(desc)
             append("Треков: ${tracks.size}\n\n")
             append(list)
+        }
+    }
+
+    fun deletePlaylist() {
+        val p = _state.value.playlist ?: return
+        viewModelScope.launch {
+            runCatching { interactor.deletePlaylist(p.playlistId) }
+                .onFailure { e -> _state.update { it.copy(error = e.message) } }
         }
     }
 }

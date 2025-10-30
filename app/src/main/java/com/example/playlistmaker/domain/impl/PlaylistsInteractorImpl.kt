@@ -22,4 +22,11 @@ class PlaylistsInteractorImpl(
 
     override suspend fun addTrackToPlaylist(playlist: Playlist, track: Track) =
         repository.addTrackToPlaylist(playlist, track)
+
+    override fun observePlaylistById(playlistId: Long) =
+        repository.observePlaylistById(playlistId)
+
+    override suspend fun updatePlaylistInfo(
+        playlistId: Long, name: String, description: String, coverUri: String?
+    ) = repository.updatePlaylistInfo(playlistId, name, description, coverUri)
 }

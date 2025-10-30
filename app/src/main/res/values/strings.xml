@@ -62,4 +62,10 @@
     <string name="hh_mm_template">%1$d ч %2$d мин</string>
     <string name="edit_info">Редактировать информацию</string>
     <string name="delete_playlist">Удалить плейлист</string>
+    <string name="remove_playlist_question">Хотите удалить плейлист?</string>
+    <string name="edit">Редактировать</string>
+    <string name="save">Сохранить</string>
+    <string name="finish_edit_title">Редактирование</string>
+    <string name="unsaved_data_msg">Есть несохранённые изменения. Выйти без сохранения?</string>
+    <string name="playlist_updated_format">Плейлист «%1$s» обновлён</string>
 </resources>

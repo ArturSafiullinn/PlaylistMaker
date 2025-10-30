@@ -80,6 +80,18 @@ class PlaylistsRepositoryImpl(
         )
     }
 
+    override fun observePlaylistById(playlistId: Long): Flow<Playlist> =
+        playlistsDao.observePlaylistById(playlistId).map(converter::mapToDomain)
+
+    override suspend fun updatePlaylistInfo(
+        playlistId: Long,
+        name: String,
+        description: String,
+        coverUri: String?
+    ) {
+        playlistsDao.updateInfo(playlistId, name, description, coverUri)
+    }
+
     private fun Track.toPlaylistTrackEntity() = PlaylistTrackEntity(
         trackId = this.trackId,
         trackName = this.trackName,

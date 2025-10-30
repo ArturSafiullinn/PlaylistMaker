@@ -4,11 +4,17 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.bundleOf
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.example.playlistmaker.R
 import com.example.playlistmaker.databinding.BottomsheetPlaylistMenuBinding
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import java.io.File
 
@@ -17,6 +23,7 @@ class PlaylistMenuBottomSheet : BottomSheetDialogFragment() {
     interface Callbacks {
         fun onShareFromMenu()
         fun onDeleteFromMenu()
+        fun onMenuDismissed()
     }
 
     private var _binding: BottomsheetPlaylistMenuBinding? = null
@@ -32,9 +39,24 @@ class PlaylistMenuBottomSheet : BottomSheetDialogFragment() {
         return binding.root
     }
 
+    override fun onStart() {
+        super.onStart()
+        val dialog = dialog as? BottomSheetDialog ?: return
+        val bottomSheet =
+            dialog.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)
+                ?: return
+        val behavior = BottomSheetBehavior.from(bottomSheet)
+        behavior.isFitToContents = true
+
+        val insets = ViewCompat.getRootWindowInsets(bottomSheet)
+        val topInset = insets?.getInsets(WindowInsetsCompat.Type.statusBars())?.top ?: 0
+        behavior.expandedOffset = topInset
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         isCancelable = true
 
+        val playlistId = requireArguments().getLong(ARG_ID)
         val title = requireArguments().getString(ARG_TITLE).orEmpty()
         val cover = requireArguments().getString(ARG_COVER)
         val meta  = requireArguments().getString(ARG_META).orEmpty()
@@ -59,7 +81,10 @@ class PlaylistMenuBottomSheet : BottomSheetDialogFragment() {
             dismiss()
         }
         binding.actionEdit.setOnClickListener {
-            // по заданию — ничего
+            findNavController().navigate(
+                R.id.editPlaylistFragment,
+                bundleOf("playlistId" to playlistId)
+            )
             dismiss()
         }
         binding.actionDelete.setOnClickListener {
@@ -69,6 +94,7 @@ class PlaylistMenuBottomSheet : BottomSheetDialogFragment() {
     }
 
     override fun onDestroyView() {
+        (parentFragment as? Callbacks)?.onMenuDismissed()
         _binding = null
         super.onDestroyView()
     }
@@ -78,10 +104,17 @@ class PlaylistMenuBottomSheet : BottomSheetDialogFragment() {
         private const val ARG_TITLE = "arg_title"
         private const val ARG_COVER = "arg_cover"
         private const val ARG_META  = "arg_meta"
+        private const val ARG_ID = "arg_id"
 
-        fun newInstance(title: String, cover: String?, meta: String): PlaylistMenuBottomSheet =
+        fun newInstance(
+            playlistId: Long,
+            title: String,
+            cover: String?,
+            meta: String
+        ): PlaylistMenuBottomSheet =
             PlaylistMenuBottomSheet().apply {
                 arguments = Bundle().apply {
+                    putLong(ARG_ID, playlistId)
                     putString(ARG_TITLE, title)
                     putString(ARG_COVER, cover)
                     putString(ARG_META,  meta)

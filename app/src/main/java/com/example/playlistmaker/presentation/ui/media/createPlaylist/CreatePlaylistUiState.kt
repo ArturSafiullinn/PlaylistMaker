@@ -8,5 +8,8 @@ data class CreatePlaylistUiState(
     val pickedCover: Uri? = null,
     val isCreateEnabled: Boolean = false,
     val hasUnsavedChanges: Boolean = false,
-    val isLoading: Boolean = false
+    val isLoading: Boolean = false,
+    val playlistId: Long? = null,
+    val initialCoverPath: String? = null,
+    val coverPreview: Uri? = null
 )

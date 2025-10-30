@@ -65,4 +65,18 @@
             android:name="playlistId"
             app:argType="long" />
     </fragment>
+
+    <fragment
+        android:id="@+id/editPlaylistFragment"
+        android:name="com.example.playlistmaker.presentation.ui.media.editPlaylist.EditPlaylistFragment"
+        android:label="Edit Playlist">
+
+        <argument
+            android:name="playlistId"
+            app:argType="long" />
+
+        <action
+            android:id="@+id/action_playlistDetailsFragment_to_editPlaylistFragment"
+            app:destination="@id/editPlaylistFragment" />
+    </fragment>
 </navigation>
