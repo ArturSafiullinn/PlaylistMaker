@@ -45,6 +45,20 @@ class PlaylistMenuBottomSheet : BottomSheetDialogFragment() {
         val bottomSheet =
             dialog.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)
                 ?: return
+        val radius = resources.getDimension(R.dimen.corner_radius_16)
+        val shape = com.google.android.material.shape.MaterialShapeDrawable.createWithElevationOverlay(requireContext()).apply {
+            shapeAppearanceModel = shapeAppearanceModel.toBuilder()
+                .setTopLeftCorner(com.google.android.material.shape.CornerFamily.ROUNDED, radius)
+                .setTopRightCorner(com.google.android.material.shape.CornerFamily.ROUNDED, radius)
+                .setBottomLeftCorner(com.google.android.material.shape.CornerFamily.ROUNDED, 0f)
+                .setBottomRightCorner(com.google.android.material.shape.CornerFamily.ROUNDED, 0f)
+                .build()
+            fillColor = android.content.res.ColorStateList.valueOf(
+                androidx.core.content.ContextCompat.getColor(requireContext(), android.R.color.white)
+            )
+        }
+        bottomSheet.background = shape
+
         val behavior = BottomSheetBehavior.from(bottomSheet)
         behavior.isFitToContents = true
 
