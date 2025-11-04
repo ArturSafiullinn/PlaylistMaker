@@ -6,7 +6,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
-import androidx.activity.addCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.core.os.bundleOf
 import androidx.core.view.ViewCompat
@@ -32,7 +31,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.io.File
-
+import android.widget.Toast
 
 class PlaylistDetailsFragment : Fragment(), PlaylistMenuBottomSheet.Callbacks {
 
@@ -44,13 +43,6 @@ class PlaylistDetailsFragment : Fragment(), PlaylistMenuBottomSheet.Callbacks {
 
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<LinearLayout>
     private lateinit var adapter: TrackAdapter
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        requireActivity().onBackPressedDispatcher.addCallback(this) {
-            findNavController().navigateUp()
-        }
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -70,6 +62,8 @@ class PlaylistDetailsFragment : Fragment(), PlaylistMenuBottomSheet.Callbacks {
         }
 
         bottomSheetBehavior.isFitToContents = false
+
+        binding.header.bringToFront()
 
         ViewCompat.setOnApplyWindowInsetsListener(binding.playlistDetailsRoot) { _, insets ->
             val topInset = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
@@ -93,11 +87,15 @@ class PlaylistDetailsFragment : Fragment(), PlaylistMenuBottomSheet.Callbacks {
             adapter = this@PlaylistDetailsFragment.adapter
         }
 
-        binding.backButton.setOnClickListener { findNavController().navigateUp() }
+
+        binding.backButton.setOnClickListener {
+            Toast.makeText(requireContext(), "BACK CLICK", Toast.LENGTH_SHORT).show()
+            requireActivity().onBackPressedDispatcher.onBackPressed()
+        }
 
         binding.shareButton.setOnClickListener {
             val shareText = viewModel.buildShareText()
-            if (!shareText.isNullOrBlank()) shareText(shareText)
+            if (shareText.isNotBlank()) shareText(shareText)
         }
 
         binding.menuButton.setOnClickListener { showMenuBottomSheet() }
@@ -112,6 +110,10 @@ class PlaylistDetailsFragment : Fragment(), PlaylistMenuBottomSheet.Callbacks {
         }
 
         viewModel.load(args.playlistId)
+
+        binding.shareButton.setOnClickListener {
+            trySharePlaylist()
+        }
     }
 
     private fun showMenuBottomSheet() {
@@ -202,6 +204,7 @@ class PlaylistDetailsFragment : Fragment(), PlaylistMenuBottomSheet.Callbacks {
     override fun onShareFromMenu() {
         val shareText = viewModel.buildShareText()
         if (!shareText.isNullOrBlank()) shareText(shareText)
+        trySharePlaylist()
     }
 
     override fun onDeleteFromMenu() {
@@ -224,5 +227,18 @@ class PlaylistDetailsFragment : Fragment(), PlaylistMenuBottomSheet.Callbacks {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    private fun trySharePlaylist() {
+        val shareText = viewModel.buildShareText()
+        if (shareText.isBlank()) {
+            Toast.makeText(
+                requireContext(),
+                getString(R.string.no_tracks_to_share),
+                Toast.LENGTH_SHORT
+            ).show()
+        } else {
+            shareText(shareText)
+        }
     }
 }

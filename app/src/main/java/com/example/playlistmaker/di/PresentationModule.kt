@@ -14,7 +14,6 @@ import com.example.playlistmaker.presentation.ui.media.createPlaylist.CoverStora
 import com.example.playlistmaker.data.storage.CoverStorageImpl
 import com.example.playlistmaker.presentation.ui.media.playlists.PlaylistDetailsViewModel
 import com.example.playlistmaker.presentation.viewmodel.CreatePlaylistViewModel
-import com.example.playlistmaker.presentation.viewmodel.EditPlaylistViewModel
 import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
@@ -29,20 +28,6 @@ val presentationModule = module {
     viewModel { FavoritesViewModel(get()) }
     viewModel { PlaylistsViewModel(get()) }
     viewModel { PlaylistDetailsViewModel(get()) }
-    viewModel {
-        EditPlaylistViewModel(
-            playlistsInteractor = get(),
-            coverStorage = get(),
-            strings = object : EditPlaylistViewModel.Strings {
-                override val finishCreationTitle =
-                    get<Context>().getString(R.string.finish_edit_title)
-                override val unsavedDataMsg = get<Context>().getString(R.string.unsaved_data_msg)
-                override fun playlistCreatedFormat(name: String) =
-                    get<Context>().getString(R.string.playlist_updated_format, name)
-            }
-        )
-    }
-
 
     single<CoverStorage> { CoverStorageImpl(androidContext()) }
     factory<CreatePlaylistViewModel.Strings> { CreatePlaylistStrings(androidContext()) }

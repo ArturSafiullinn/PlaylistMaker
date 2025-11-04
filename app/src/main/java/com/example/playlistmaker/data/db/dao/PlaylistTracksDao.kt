@@ -13,4 +13,7 @@ interface PlaylistTracksDao {
 
     @Query("SELECT * FROM playlist_tracks WHERE trackId IN (:ids)")
     fun observeByIds(ids: List<Long>): kotlinx.coroutines.flow.Flow<List<PlaylistTrackEntity>>
+
+    @Query("DELETE FROM playlist_tracks WHERE trackId = :trackId")
+    suspend fun deleteByTrackId(trackId: Long)
 }

@@ -7,7 +7,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    tools:context=".presentation.ui.media.playlists.PlaylistDetailsFragment"
+    tools:context=".presentation.ui.media.playlistDetails.PlaylistDetailsFragment"
     android:background="@color/off_icon_color_1">
 
     <androidx.constraintlayout.widget.ConstraintLayout

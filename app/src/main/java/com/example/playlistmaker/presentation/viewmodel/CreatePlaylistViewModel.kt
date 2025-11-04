@@ -33,7 +33,8 @@ class CreatePlaylistViewModel(
     fun onCoverPicked(uri: Uri?) = updateState(pickedCover = uri)
 
     fun onBackPressed() {
-        if (_state.value.hasUnsavedChanges && !_state.value.isLoading) {
+        val s = _state.value
+        if (s.hasUnsavedChanges && !s.isLoading) {
             viewModelScope.launch {
                 _events.send(
                     CreatePlaylistEvent.ShowDiscardDialog(
@@ -49,23 +50,24 @@ class CreatePlaylistViewModel(
 
     fun confirmDiscardAndClose() {
         viewModelScope.launch {
-            _state.update {
-                it.copy(
-                    name = "",
-                    description = "",
-                    pickedCover = null,
-                    hasUnsavedChanges = false,
-                    isCreateEnabled = false,
-                    isLoading = false
-                )
-            }
+            _state.value = CreatePlaylistUiState()
             _events.send(CreatePlaylistEvent.CloseScreen)
         }
     }
 
-    fun createPlaylist() {
+    fun savePlaylist() {
+        val s = _state.value
+        if (!s.isCreateEnabled || s.isLoading) return
+
+        if (s.isEditMode && s.playlistId != null) {
+            saveChangesExisting()
+        } else {
+            createNewPlaylist()
+        }
+    }
+
+    private fun createNewPlaylist() {
         val current = _state.value
-        if (!current.isCreateEnabled || current.isLoading) return
 
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true) }
@@ -83,15 +85,7 @@ class CreatePlaylistViewModel(
 
                 playlistsInteractor.addToPlaylists(playlist)
 
-                _state.update {
-                    it.copy(
-                        name = "",
-                        description = "",
-                        pickedCover = null,
-                        hasUnsavedChanges = false,
-                        isCreateEnabled = false
-                    )
-                }
+                _state.value = CreatePlaylistUiState()
 
                 _events.send(
                     CreatePlaylistEvent.ShowToast(
@@ -106,17 +100,68 @@ class CreatePlaylistViewModel(
         }
     }
 
+    fun loadForEdit(playlistId: Long) {
+        viewModelScope.launch {
+            playlistsInteractor.observePlaylistById(playlistId).collect { p ->
+                _state.update {
+                    it.copy(
+                        playlistId = p.playlistId,
+                        isEditMode = true,
+                        name = p.name,
+                        description = p.description,
+                        initialCoverPath = p.coverUri,
+                        pickedCover = null,
+                        isLoading = false,
+                        isCreateEnabled = p.name.isNotBlank(),
+                        hasUnsavedChanges = false
+                    )
+                }
+            }
+        }
+    }
+
+    private fun saveChangesExisting() {
+        val s = _state.value
+        val id = s.playlistId ?: return
+
+        viewModelScope.launch {
+            _state.update { it.copy(isLoading = true) }
+            try {
+                val newCoverPath: String? =
+                    s.pickedCover?.let { coverStorage.saveCover(it) } ?: s.initialCoverPath
+
+                playlistsInteractor.updatePlaylistInfo(
+                    playlistId = id,
+                    name = s.name.trim(),
+                    description = s.description.trim(),
+                    coverUri = newCoverPath
+                )
+
+                _events.send(CreatePlaylistEvent.CloseScreen)
+            } catch (_: Throwable) {
+            } finally {
+                _state.update { it.copy(isLoading = false) }
+            }
+        }
+    }
+
     private fun updateState(
         name: String = _state.value.name,
         description: String = _state.value.description,
         pickedCover: Uri? = _state.value.pickedCover
     ) {
-        val nameTrim = name
-        val hasUnsaved = nameTrim.isNotBlank() || description.isNotBlank() || pickedCover != null
-        val createEnabled = nameTrim.isNotBlank()
+        val base = _state.value
+
+        val hasUnsaved =
+            name != base.name ||
+                    description != base.description ||
+                    pickedCover != base.pickedCover
+
+        val createEnabled = name.isNotBlank()
+
         _state.update {
             it.copy(
-                name = nameTrim,
+                name = name,
                 description = description,
                 pickedCover = pickedCover,
                 hasUnsavedChanges = hasUnsaved,

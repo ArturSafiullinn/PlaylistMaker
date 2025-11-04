@@ -96,7 +96,7 @@ class PlaylistMenuBottomSheet : BottomSheetDialogFragment() {
         }
         binding.actionEdit.setOnClickListener {
             findNavController().navigate(
-                R.id.editPlaylistFragment,
+                R.id.action_playlistDetailsFragment_to_createPlaylistFragment,
                 bundleOf("playlistId" to playlistId)
             )
             dismiss()

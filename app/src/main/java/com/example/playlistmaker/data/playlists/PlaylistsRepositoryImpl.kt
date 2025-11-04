@@ -31,12 +31,10 @@ class PlaylistsRepositoryImpl(
     }
 
     override suspend fun addTrackToPlaylist(playlist: Playlist, track: Track): Boolean {
-        playlistTracksDao.insert(track.toPlaylistTrackEntity())
-
         val currentIds = IdsCsv.fromCsv(playlist.playlistTracks)
         if (currentIds.contains(track.trackId)) return false
-
-        val newIds = currentIds + track.trackId
+        playlistTracksDao.insert(track.toPlaylistTrackEntity())
+        val newIds = listOf(track.trackId) + currentIds
         playlistsDao.updateTracks(
             playlistId = playlist.playlistId,
             ids = IdsCsv.toCsv(newIds),
@@ -78,7 +76,23 @@ class PlaylistsRepositoryImpl(
             ids = IdsCsv.toCsv(ids),
             count = ids.size
         )
+
+        val allPlaylists = playlistsDao.getAllPlaylists()
+
+        val usedSomewhereElse = allPlaylists.any { playlistEntity ->
+            if (playlistEntity.playlistId == playlistId) {
+                false
+            } else {
+                val playlistIds = IdsCsv.fromCsv(playlistEntity.playlistTracks)
+                playlistIds.contains(trackId)
+            }
+        }
+
+        if (!usedSomewhereElse) {
+            playlistTracksDao.deleteByTrackId(trackId)
+        }
     }
+
 
     override fun observePlaylistById(playlistId: Long): Flow<Playlist> =
         playlistsDao.observePlaylistById(playlistId).map(converter::mapToDomain)
