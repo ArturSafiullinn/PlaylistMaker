@@ -23,18 +23,27 @@
         <action
             android:id="@+id/action_mediaFragment_to_createPlaylistFragment"
             app:destination="@id/createPlaylistFragment" />
+        <action
+            android:id="@+id/action_mediaFragment_to_playlistDetailsFragment"
+            app:destination="@id/playlistDetailsFragment" />
     </fragment>
 
     <fragment
         android:id="@+id/createPlaylistFragment"
         android:name="com.example.playlistmaker.presentation.ui.media.createPlaylist.CreatePlaylistFragment"
         android:label="CreatePlaylistFragment">
+
         <action
             android:id="@+id/action_createPlaylistFragment_to_mediaFragment"
             app:destination="@id/mediaFragment"
             app:popUpTo="@id/mediaFragment"
             app:popUpToInclusive="false"/>
+
+        <argument
+            android:name="playlistId"
+            app:argType="long" />
     </fragment>
+
 
     <fragment
         android:id="@+id/settingsFragment"
@@ -50,6 +59,19 @@
             app:argType="com.example.playlistmaker.presentation.models.UiTrack" />
         <action
             android:id="@+id/action_trackFragment_to_createPlaylistFragment"
+            app:destination="@id/createPlaylistFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/playlistDetailsFragment"
+        android:name="com.example.playlistmaker.presentation.ui.media.playlistDetails.PlaylistDetailsFragment"
+        android:label="Playlist Details">
+
+        <argument
+            android:name="playlistId"
+            app:argType="long" />
+        <action
+            android:id="@+id/action_playlistDetailsFragment_to_createPlaylistFragment"
             app:destination="@id/createPlaylistFragment" />
     </fragment>
 </navigation>

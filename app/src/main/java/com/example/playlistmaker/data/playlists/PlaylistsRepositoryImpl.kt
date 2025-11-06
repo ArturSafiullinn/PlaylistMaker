@@ -9,6 +9,8 @@ import com.example.playlistmaker.domain.db.PlaylistsRepository
 import com.example.playlistmaker.domain.models.Playlist
 import com.example.playlistmaker.domain.models.Track
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 
 class PlaylistsRepositoryImpl(
@@ -29,12 +31,10 @@ class PlaylistsRepositoryImpl(
     }
 
     override suspend fun addTrackToPlaylist(playlist: Playlist, track: Track): Boolean {
-        playlistTracksDao.insert(track.toPlaylistTrackEntity())
-
         val currentIds = IdsCsv.fromCsv(playlist.playlistTracks)
         if (currentIds.contains(track.trackId)) return false
-
-        val newIds = currentIds + track.trackId
+        playlistTracksDao.insert(track.toPlaylistTrackEntity())
+        val newIds = listOf(track.trackId) + currentIds
         playlistsDao.updateTracks(
             playlistId = playlist.playlistId,
             ids = IdsCsv.toCsv(newIds),
@@ -43,12 +43,75 @@ class PlaylistsRepositoryImpl(
         return true
     }
 
+    override fun observePlaylistWithTracks(
+        playlistId: Long
+    ): Flow<Pair<Playlist, List<Track>>> =
+        playlistsDao.observePlaylistById(playlistId)
+            .flatMapLatest { entity ->
+                val playlist = converter.mapToDomain(entity)
+                val ids = IdsCsv.fromCsv(entity.playlistTracks)
+                if (ids.isEmpty()) {
+                    flowOf(playlist to emptyList())
+                } else {
+                    playlistTracksDao.observeByIds(ids)
+                        .map { entities ->
+                            val byId = entities.associateBy { it.trackId }
+                            val ordered = ids.mapNotNull { id ->
+                                byId[id]?.let { converter.mapTrackEntityToDomain(it) }
+                            }
+                            playlist to ordered
+                        }
+                }
+            }
+
+    override suspend fun removeTrackFromPlaylist(playlistId: Long, trackId: Long) {
+        val entity = playlistsDao.getPlaylistById(playlistId)
+        val ids = IdsCsv.fromCsv(entity.playlistTracks).toMutableList()
+
+        val removed = ids.remove(trackId)
+        if (!removed) return
+
+        playlistsDao.updateTracks(
+            playlistId = playlistId,
+            ids = IdsCsv.toCsv(ids),
+            count = ids.size
+        )
+
+        val allPlaylists = playlistsDao.getAllPlaylists()
+
+        val usedSomewhereElse = allPlaylists.any { playlistEntity ->
+            if (playlistEntity.playlistId == playlistId) {
+                false
+            } else {
+                val playlistIds = IdsCsv.fromCsv(playlistEntity.playlistTracks)
+                playlistIds.contains(trackId)
+            }
+        }
+
+        if (!usedSomewhereElse) {
+            playlistTracksDao.deleteByTrackId(trackId)
+        }
+    }
+
+
+    override fun observePlaylistById(playlistId: Long): Flow<Playlist> =
+        playlistsDao.observePlaylistById(playlistId).map(converter::mapToDomain)
+
+    override suspend fun updatePlaylistInfo(
+        playlistId: Long,
+        name: String,
+        description: String,
+        coverUri: String?
+    ) {
+        playlistsDao.updateInfo(playlistId, name, description, coverUri)
+    }
+
     private fun Track.toPlaylistTrackEntity() = PlaylistTrackEntity(
         trackId = this.trackId,
         trackName = this.trackName,
         artistName = this.artistName,
         trackTimeMillis = this.trackTime ?: 0L,
-        artworkUrl100 = this.previewUrl,
+        artworkUrl100 = this.artworkUrl,
         collectionName = this.collectionName,
         releaseDate = this.releaseDate,
         primaryGenreName = this.genre,

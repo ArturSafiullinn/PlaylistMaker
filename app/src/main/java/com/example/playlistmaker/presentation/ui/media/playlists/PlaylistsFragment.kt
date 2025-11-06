@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.playlistmaker.databinding.PlaylistsFragmentBinding
@@ -38,7 +39,11 @@ class PlaylistsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         adapter = PlaylistsAdapter { playlist ->
-            // TODO: открыть детали плейлиста
+            val action = MediaFragmentDirections
+                .actionMediaFragmentToPlaylistDetailsFragment(playlist.playlistId)
+            requireParentFragment()
+                .findNavController()
+                .navigate(action)
         }
 
         binding.playlistsRecycler.layoutManager = GridLayoutManager(requireContext(), 2)
@@ -47,7 +52,10 @@ class PlaylistsFragment : Fragment() {
         binding.newPlaylistButton.setOnClickListener {
             requireParentFragment()
                 .findNavController()
-                .navigate(R.id.action_mediaFragment_to_createPlaylistFragment)
+                .navigate(
+                    R.id.action_mediaFragment_to_createPlaylistFragment,
+                    bundleOf("playlistId" to 0L)
+                )
         }
 
         viewModel.state.onEach { render(it) }.launchIn(viewLifecycleOwner.lifecycleScope)

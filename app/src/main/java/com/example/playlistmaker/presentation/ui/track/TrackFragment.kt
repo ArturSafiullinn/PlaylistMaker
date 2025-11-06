@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.os.bundleOf
 import androidx.core.view.ViewCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
@@ -55,7 +56,7 @@ class TrackFragment : Fragment() {
         if (uiTrack.previewUrl.isNullOrBlank()) {
             binding.playButton.isEnabled = false
         } else {
-            viewModel.preparePlayer(uiTrack.previewUrl!!)
+            viewModel.preparePlayer(uiTrack.previewUrl)
         }
 
         with(binding) {
@@ -65,7 +66,7 @@ class TrackFragment : Fragment() {
             valueYear.text = uiTrack.releaseDate
             valueGenre.text = uiTrack.genre
             valueCountry.text = uiTrack.country
-            playbackTime.text = "00:00"
+            playbackTime.text = getString(R.string.zero_zero_time)
             playButton.isEnabled = false
 
             Glide.with(this@TrackFragment)
@@ -134,7 +135,7 @@ class TrackFragment : Fragment() {
 
         binding.addButton.setOnClickListener {
             viewModel.onAddToPlaylistClicked()
-            behavior.state = BottomSheetBehavior.STATE_COLLAPSED // ← изменено
+            behavior.state = BottomSheetBehavior.STATE_COLLAPSED
         }
 
         binding.newPlaylistButton.setOnClickListener {
@@ -152,11 +153,14 @@ class TrackFragment : Fragment() {
                     viewModel.events.collect { e ->
                         when (e) {
                             is TrackViewModel.UiEvent.OpenBottomSheet ->
-                                behavior.state = BottomSheetBehavior.STATE_COLLAPSED // ← изменено
+                                behavior.state = BottomSheetBehavior.STATE_COLLAPSED
                             is TrackViewModel.UiEvent.CloseBottomSheet ->
                                 behavior.state = BottomSheetBehavior.STATE_HIDDEN
                             is TrackViewModel.UiEvent.OpenCreatePlaylist ->
-                                findNavController().navigate(R.id.action_trackFragment_to_createPlaylistFragment)
+                                findNavController().navigate(
+                                    R.id.action_trackFragment_to_createPlaylistFragment,
+                                    bundleOf("playlistId" to 0L)
+                                )
                             is TrackViewModel.UiEvent.ShowToast ->
                                 Toast.makeText(requireContext(), e.msg, Toast.LENGTH_SHORT).show()
                         }

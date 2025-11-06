@@ -80,9 +80,12 @@ class FavoritesFragment : Fragment() {
     }
 
     private fun initAdapters() {
-        trackAdapter = TrackAdapter(mutableListOf()) { track ->
-            trackClickDebounce(track)
-        }
+        trackAdapter = TrackAdapter(
+            mutableListOf(),
+            onItemClick = { track ->
+                trackClickDebounce(track)
+                },
+            {})
         binding.favoritesRecycler.adapter = trackAdapter
     }
 

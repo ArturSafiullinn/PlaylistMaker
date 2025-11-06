@@ -1,5 +1,6 @@
 package com.example.playlistmaker.di
 
+import android.content.Context
 import com.example.playlistmaker.R
 import com.example.playlistmaker.presentation.viewmodel.FavoritesViewModel
 import com.example.playlistmaker.presentation.viewmodel.MainViewModel
@@ -11,6 +12,7 @@ import com.example.playlistmaker.presentation.viewmodel.TrackViewModel
 import com.example.playlistmaker.presentation.ui.media.createPlaylist.CreatePlaylistStrings
 import com.example.playlistmaker.presentation.ui.media.createPlaylist.CoverStorage
 import com.example.playlistmaker.data.storage.CoverStorageImpl
+import com.example.playlistmaker.presentation.ui.media.playlists.PlaylistDetailsViewModel
 import com.example.playlistmaker.presentation.viewmodel.CreatePlaylistViewModel
 import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
@@ -25,6 +27,7 @@ val presentationModule = module {
     viewModel { MediaViewModel() }
     viewModel { FavoritesViewModel(get()) }
     viewModel { PlaylistsViewModel(get()) }
+    viewModel { PlaylistDetailsViewModel(get()) }
 
     single<CoverStorage> { CoverStorageImpl(androidContext()) }
     factory<CreatePlaylistViewModel.Strings> { CreatePlaylistStrings(androidContext()) }

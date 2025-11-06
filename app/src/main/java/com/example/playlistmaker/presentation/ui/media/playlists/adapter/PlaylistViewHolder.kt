@@ -17,7 +17,7 @@ class PlaylistViewHolder(
         title.text = item.name
         count.text = itemView.context.getString(R.string.playlist_tracks_count, item.playlistLength)
         val uri = item.coverUri.orEmpty()
-        if (uri.isNullOrBlank()) {
+        if (uri.isBlank()) {
             cover.setImageResource(R.drawable.album_placeholder)
         } else {
             Glide.with(cover)

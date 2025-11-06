@@ -24,4 +24,5 @@ val domainModule = module {
 
     single< PlaylistsInteractor> { PlaylistsInteractorImpl (get()) }
 
+    single< PlaylistDetailsInteractor> { PlaylistDetailsInteractorImpl (get()) }
 }

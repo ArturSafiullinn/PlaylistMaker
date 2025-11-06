@@ -25,10 +25,9 @@
             app:layout_constraintStart_toStartOf="parent" />
 
         <TextView
-            android:id="@+id/title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/new_playlist"
+            android:text="@string/edit"
             style="@style/TitleTextStyle"
             android:paddingStart="12dp"/>
     </LinearLayout>
@@ -136,7 +135,7 @@
         android:layout_marginBottom="16dp"
         android:enabled="false"
         android:background="@drawable/add_playlist_button_inactive_background"
-        android:text="@string/add_playlist_button_text"
+        android:text="@string/save"
         android:textColor="@color/add_playlist_button_text"
         android:fontFamily="@font/ys_display_regular"
         android:textAllCaps="false"

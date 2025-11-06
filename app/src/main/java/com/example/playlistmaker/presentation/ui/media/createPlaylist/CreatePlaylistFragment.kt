@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -33,6 +34,10 @@ class CreatePlaylistFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val viewModel: CreatePlaylistViewModel by viewModel()
+
+    private val playlistId: Long by lazy {
+        arguments?.getLong("playlistId") ?: 0L
+    }
 
     private lateinit var backCallback: OnBackPressedCallback
 
@@ -106,14 +111,65 @@ class CreatePlaylistFragment : Fragment() {
             viewModel.onDescriptionChanged(text?.toString().orEmpty())
         }
 
-        binding.addPlaylistButton.setOnClickListener { viewModel.createPlaylist() }
+        binding.addPlaylistButton.setOnClickListener { viewModel.savePlaylist() }
 
         viewModel.state.onEach { s ->
-            binding.addPlaylistButton.isEnabled = s.isCreateEnabled && !s.isLoading
-            binding.addPlaylistButton.setBackgroundResource(
-                if (s.isCreateEnabled) R.drawable.add_playlist_button_active_background
-                else R.drawable.add_playlist_button_inactive_background
-            )
+            with(binding) {
+                val currentName = inputPlaylistName.text.toString()
+                if (currentName != s.name) {
+                    inputPlaylistName.setText(s.name)
+                    inputPlaylistName.setSelection(s.name.length)
+                }
+
+                val currentDescription = inputPlaylistDescription.text.toString()
+                if (currentDescription != s.description) {
+                    inputPlaylistDescription.setText(s.description)
+                    inputPlaylistDescription.setSelection(s.description.length)
+                }
+
+                val coverToLoad = s.coverToShow
+                if (coverToLoad != null) {
+                    Glide.with(this@CreatePlaylistFragment)
+                        .load(coverToLoad)
+                        .transform(
+                            CenterCrop(),
+                            RoundedCorners(
+                                resources.getDimensionPixelSize(
+                                    R.dimen.playlist_cover_corner_radius
+                                )
+                            )
+                        )
+                        .listener(object : RequestListener<Drawable> {
+                            override fun onLoadFailed(
+                                e: GlideException?,
+                                model: Any?,
+                                target: Target<Drawable>,
+                                isFirstResource: Boolean
+                            ) = false
+
+                            override fun onResourceReady(
+                                resource: Drawable,
+                                model: Any,
+                                target: Target<Drawable>?,
+                                dataSource: DataSource,
+                                isFirstResource: Boolean
+                            ): Boolean {
+                                playlistCover.background = null
+                                return false
+                            }
+                        })
+                        .into(playlistCover)
+                } else {
+                    playlistCover.setImageDrawable(null)
+                    playlistCover.setBackgroundResource(R.drawable.new_playlist_image_background)
+                }
+
+                addPlaylistButton.isEnabled = s.isCreateEnabled && !s.isLoading
+                addPlaylistButton.setBackgroundResource(
+                    if (s.isCreateEnabled) R.drawable.add_playlist_button_active_background
+                    else R.drawable.add_playlist_button_inactive_background
+                )
+            }
         }.launchIn(viewLifecycleOwner.lifecycleScope)
 
         viewModel.events.onEach { e ->
@@ -141,10 +197,31 @@ class CreatePlaylistFragment : Fragment() {
                 }
             }
         }.launchIn(viewLifecycleOwner.lifecycleScope)
+
+        if (playlistId == 0L) {
+            bindingHeaderForCreateMode()
+        } else {
+            bindingHeaderForEditMode()
+            viewModel.loadForEdit(playlistId)
+        }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    private fun bindingHeaderForCreateMode() {
+        binding.apply {
+            title.text = getString(R.string.new_playlist)
+            addPlaylistButton.text = getString(R.string.add_playlist_button_text)
+        }
+    }
+
+    private fun bindingHeaderForEditMode() {
+        binding.apply {
+            title.text = getString(R.string.edit)
+            addPlaylistButton.text = getString(R.string.save)
+        }
     }
 }
