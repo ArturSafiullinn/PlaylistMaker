@@ -77,7 +77,15 @@ class TrackFragment : Fragment() {
             backButton.setOnClickListener {
                 requireActivity().onBackPressedDispatcher.onBackPressed()
             }
-            playButton.setOnClickListener { viewModel.onPlayButtonClicked() }
+            binding.playButton.listener = object : PlaybackButtonView.Listener {
+                override fun onPlayRequested() {
+                    viewModel.onPlayButtonClicked()
+                }
+
+                override fun onPauseRequested() {
+                    viewModel.onPlayButtonClicked()
+                }
+            }
             likeButton.setOnClickListener { viewModel.onLikeButtonClicked() }
         }
 
@@ -171,7 +179,7 @@ class TrackFragment : Fragment() {
 
         viewModel.observePlayerState().observe(viewLifecycleOwner) { state ->
             binding.playButton.isEnabled = state.isPlayButtonEnabled
-            binding.playButton.setImageResource(state.buttonIcon)
+            binding.playButton.isPlaying = state is TrackViewModel.PlayerState.Playing
             binding.playbackTime.text = state.progress
         }
 
