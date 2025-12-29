@@ -1,6 +1,10 @@
 package com.example.playlistmaker.presentation.ui
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
@@ -13,6 +17,10 @@ class HostActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityHostBinding
     private val viewModel: MainViewModel by viewModel()
+    private val notifLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,6 +39,12 @@ class HostActivity : AppCompatActivity() {
                 R.id.mediaFragment,
                 R.id.settingsFragment -> binding.bottomNavigationView.show()
                 else -> binding.bottomNavigationView.hide()
+            }
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            val perm = Manifest.permission.POST_NOTIFICATIONS
+            if (checkSelfPermission(perm) != PackageManager.PERMISSION_GRANTED) {
+                notifLauncher.launch(perm)
             }
         }
     }
