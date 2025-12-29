@@ -184,11 +184,6 @@ class TrackFragment : Fragment() {
         }
     }
 
-    override fun onStart() {
-        super.onStart()
-        val uiTrack = args.track
-    }
-
     override fun onPause() {
         super.onPause()
         viewModel.onAppPaused()

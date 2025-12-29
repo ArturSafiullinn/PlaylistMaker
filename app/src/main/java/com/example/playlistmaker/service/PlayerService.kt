@@ -11,9 +11,16 @@ import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ProcessLifecycleOwner
 import com.example.playlistmaker.R
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 
 class PlayerService : Service() {
 
@@ -25,11 +32,11 @@ class PlayerService : Service() {
         const val EXTRA_TITLE = "extra_title"
     }
 
-    sealed class State {
-        object Default : State()
-        object Prepared : State()
-        data class Playing(val positionMs: Int) : State()
-        data class Paused(val positionMs: Int) : State()
+    sealed interface State {
+        object Default : State
+        object Prepared : State
+        data class Playing(val positionMs: Int) : State
+        data class Paused(val positionMs: Int) : State
     }
 
     inner class PlayerBinder : Binder() {
@@ -60,7 +67,6 @@ class PlayerService : Service() {
 
         override fun onStop(owner: LifecycleOwner) {
             appInForeground = false
-            // если сейчас играет — показать уведомление
             if (isPlaying()) showNotification()
         }
     }
@@ -81,12 +87,10 @@ class PlayerService : Service() {
 
     override fun onBind(intent: Intent?): IBinder = binder
 
-    // ===== Публичные методы для управления =====
 
     fun bindTrackInfo(artist: String, title: String) {
         this.artist = artist
         this.title = title
-        // если уведомление уже показано — обновим текст
         if (!appInForeground && isPlaying()) showNotification()
     }
 
@@ -127,7 +131,6 @@ class PlayerService : Service() {
         if (mp.isPlaying) mp.pause()
         stopTimer()
         _state.value = State.Paused(mp.currentPosition)
-        // уведомление можно оставить (но по требованиям оно нужно при сворачивании во время воспроизведения)
         hideNotification()
     }
 
@@ -149,7 +152,6 @@ class PlayerService : Service() {
     fun isPlaying(): Boolean = mediaPlayer?.isPlaying == true
     fun getCurrentPosition(): Int = mediaPlayer?.currentPosition ?: 0
 
-    // ===== Таймер прогресса =====
 
     private fun startTimer() {
         stopTimer()
@@ -174,8 +176,6 @@ class PlayerService : Service() {
         mediaPlayer = null
     }
 
-    // ===== Уведомление =====
-
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
@@ -190,7 +190,7 @@ class PlayerService : Service() {
     private fun buildNotification(): Notification {
         val text = "$artist - $title"
         return NotificationCompat.Builder(this, NOTIF_CHANNEL_ID)
-            .setSmallIcon(R.mipmap.ic_launcher) // замени на свой
+            .setSmallIcon(R.mipmap.ic_launcher)
             .setContentTitle("Playlist Maker")
             .setContentText(text)
             .setOngoing(true)
@@ -199,7 +199,6 @@ class PlayerService : Service() {
     }
 
     private fun showNotification() {
-        // важно: именно startForeground, чтобы сервис не убили в фоне
         startForeground(NOTIF_ID, buildNotification())
     }
 

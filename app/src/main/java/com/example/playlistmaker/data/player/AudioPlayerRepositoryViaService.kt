@@ -12,10 +12,15 @@ class AudioPlayerRepositoryViaService(
     private val appContext: Context
 ) : AudioPlayerRepository {
 
+    private data class PendingTrackInfo(
+        val title: String,
+        val artist: String
+    )
+
+    private var pendingTrackInfo: PendingTrackInfo? = null
     private var service: PlayerService? = null
     private var bound = false
     private var pendingPrepare: (() -> Unit)? = null
-    private var pendingTrackInfo: Pair<String, String>? = null
     private var pendingPlay: Boolean = false
     private var pendingPause: Boolean = false
     private var pendingStop: Boolean = false
@@ -82,7 +87,7 @@ class AudioPlayerRepositoryViaService(
     fun bindTrackInfo(artist: String, title: String) {
         val s = service
         if (s == null) {
-            pendingTrackInfo = artist to title
+            pendingTrackInfo = PendingTrackInfo(artist, title)
             return
         }
         s.bindTrackInfo(artist, title)
