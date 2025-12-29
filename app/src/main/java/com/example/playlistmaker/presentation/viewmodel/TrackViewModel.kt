@@ -6,6 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.playlistmaker.R
+import com.example.playlistmaker.data.player.AudioPlayerRepositoryViaService
 import com.example.playlistmaker.domain.api.AudioPlayerInteractor
 import com.example.playlistmaker.domain.db.FavoritesInteractor
 import com.example.playlistmaker.domain.db.PlaylistsInteractor
@@ -26,7 +27,8 @@ class TrackViewModel(
     private val player: AudioPlayerInteractor,
     private val favorites: FavoritesInteractor,
     private val playlists: PlaylistsInteractor,
-    private val strings: Strings
+    private val strings: Strings,
+    private val serviceRepo: AudioPlayerRepositoryViaService
 ) : ViewModel() {
 
     companion object {
@@ -73,10 +75,30 @@ class TrackViewModel(
 
     private var currentTrack: Track? = null
 
+    private var currentArtist: String = ""
+    private var currentTitle: String = ""
+
     override fun onCleared() {
         stopTimer()
-        player.release()
+        runCatching { player.stop() }
+        runCatching { player.release() }
+        runCatching { serviceRepo.unbind() }
         super.onCleared()
+    }
+
+    fun onScreenOpened(artist: String, title: String) {
+        currentArtist = artist
+        currentTitle = title
+        serviceRepo.bind()
+        serviceRepo.bindTrackInfo(artist, title)
+    }
+
+    fun onScreenClosed() {
+        stopTimer()
+        player.stop()
+        player.release()
+        serviceRepo.unbind()
+        playerState.postValue(PlayerState.Prepared())
     }
 
     fun bindTrack(track: Track) {
@@ -89,6 +111,8 @@ class TrackViewModel(
     }
 
     fun preparePlayer(url: String) {
+        serviceRepo.bindTrackInfo(currentArtist, currentTitle)
+
         player.prepare(
             url = url,
             onReady = { playerState.postValue(PlayerState.Prepared()) },
@@ -115,8 +139,7 @@ class TrackViewModel(
         }
     }
 
-    fun onPause() {
-        if (player.isPlaying()) pausePlayer()
+    fun onAppPaused() {
     }
 
     fun onAddToPlaylistClicked() {
@@ -134,20 +157,25 @@ class TrackViewModel(
     fun onPickPlaylist(playlist: Playlist) {
         val track = currentTrack ?: return
         val ids = com.example.playlistmaker.data.util.IdsCsv.fromCsv(playlist.playlistTracks)
+
         viewModelScope.launch {
             if (ids.contains(track.trackId)) {
                 _events.send(UiEvent.ShowToast(strings.alreadyInPlaylist(playlist.name)))
                 _events.send(UiEvent.CloseBottomSheet)
                 return@launch
             }
+
             val added = playlists.addTrackToPlaylist(playlist, track)
             if (added) _events.send(UiEvent.ShowToast(strings.addedToPlaylist(playlist.name)))
             else _events.send(UiEvent.ShowToast(strings.alreadyInPlaylist(playlist.name)))
+
             _events.send(UiEvent.CloseBottomSheet)
         }
     }
 
     private fun startPlayer() {
+        serviceRepo.bindTrackInfo(currentArtist, currentTitle)
+
         player.play()
         playerState.postValue(PlayerState.Playing(formatMillis(player.getCurrentPosition())))
         startTimer()

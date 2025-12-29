@@ -15,7 +15,7 @@ import com.example.playlistmaker.data.favorites.FavoritesRepositoryImpl
 import com.example.playlistmaker.data.history.SearchHistoryRepositoryImpl
 import com.example.playlistmaker.data.network.NetworkClient
 import com.example.playlistmaker.data.network.NetworkClientImpl
-import com.example.playlistmaker.data.player.AudioPlayerRepositoryImpl
+import com.example.playlistmaker.data.player.AudioPlayerRepositoryViaService
 import com.example.playlistmaker.data.playlists.PlaylistsRepositoryImpl
 import com.example.playlistmaker.data.settings.SettingsRepositoryImpl
 import com.example.playlistmaker.domain.api.AudioPlayerRepository
@@ -61,7 +61,7 @@ val dataModule = module {
     single { PlaylistDbConverter() }
 
     // Repositories
-    factory<AudioPlayerRepository> { AudioPlayerRepositoryImpl(get()) }
+    //factory<AudioPlayerRepository> { AudioPlayerRepositoryImpl(get()) }
     single<SearchHistoryRepository> { SearchHistoryRepositoryImpl(get(), get()) }
     single<TrackRepository> { TrackRepositoryImpl(get(), get()) }
     single<FavoritesRepository> { FavoritesRepositoryImpl(get(), get()) }
@@ -72,4 +72,9 @@ val dataModule = module {
     single<SharedPreferences> {
         androidContext().getSharedPreferences("app_prefs", MODE_PRIVATE)
     }
+
+    single<AudioPlayerRepositoryViaService> {
+        AudioPlayerRepositoryViaService(androidContext())
+    }
+    single<AudioPlayerRepository> { get<AudioPlayerRepositoryViaService>() }
 }

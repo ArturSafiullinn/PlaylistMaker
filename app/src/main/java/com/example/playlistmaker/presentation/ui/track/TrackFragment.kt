@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.core.os.bundleOf
 import androidx.core.view.ViewCompat
@@ -37,6 +38,8 @@ class TrackFragment : Fragment() {
         private const val EXPANDED_SCRIM_ALPHA = 0.75f
     }
 
+    private lateinit var behavior: BottomSheetBehavior<LinearLayout>
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -53,6 +56,7 @@ class TrackFragment : Fragment() {
         val domainTrack = uiTrack.toDomain()
         viewModel.bindTrack(domainTrack)
 
+        viewModel.onScreenOpened(uiTrack.artistName, uiTrack.trackName)
         if (uiTrack.previewUrl.isNullOrBlank()) {
             binding.playButton.isEnabled = false
         } else {
@@ -77,15 +81,12 @@ class TrackFragment : Fragment() {
             backButton.setOnClickListener {
                 requireActivity().onBackPressedDispatcher.onBackPressed()
             }
-            binding.playButton.listener = object : PlaybackButtonView.Listener {
-                override fun onPlayRequested() {
-                    viewModel.onPlayButtonClicked()
-                }
 
-                override fun onPauseRequested() {
-                    viewModel.onPlayButtonClicked()
-                }
+            playButton.listener = object : PlaybackButtonView.Listener {
+                override fun onPlayRequested() = viewModel.onPlayButtonClicked()
+                override fun onPauseRequested() = viewModel.onPlayButtonClicked()
             }
+
             likeButton.setOnClickListener { viewModel.onLikeButtonClicked() }
         }
 
@@ -93,12 +94,11 @@ class TrackFragment : Fragment() {
         val overlay = binding.overlay
 
         overlay.isClickable = true
-
         val density = resources.displayMetrics.density
         ViewCompat.setElevation(bottomSheet, 16f * density)
         ViewCompat.setElevation(overlay, 8f * density)
 
-        val behavior = BottomSheetBehavior.from(bottomSheet).apply {
+        behavior = BottomSheetBehavior.from(bottomSheet).apply {
             state = BottomSheetBehavior.STATE_HIDDEN
             skipCollapsed = false
             isDraggable = true
@@ -108,9 +108,7 @@ class TrackFragment : Fragment() {
         behavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
             override fun onStateChanged(bottom: View, newState: Int) {
                 when (newState) {
-                    BottomSheetBehavior.STATE_HIDDEN -> {
-                        overlay.visibility = View.GONE
-                    }
+                    BottomSheetBehavior.STATE_HIDDEN -> overlay.visibility = View.GONE
                     BottomSheetBehavior.STATE_COLLAPSED -> {
                         overlay.visibility = View.VISIBLE
                         overlay.alpha = PEEK_SCRIM_ALPHA
@@ -126,18 +124,13 @@ class TrackFragment : Fragment() {
             override fun onSlide(bottom: View, slideOffset: Float) {
                 if (overlay.visibility != View.VISIBLE) overlay.visibility = View.VISIBLE
                 val t = slideOffset.coerceIn(0f, 1f)
-                overlay.alpha =
-                    PEEK_SCRIM_ALPHA + (EXPANDED_SCRIM_ALPHA - PEEK_SCRIM_ALPHA) * t
+                overlay.alpha = PEEK_SCRIM_ALPHA + (EXPANDED_SCRIM_ALPHA - PEEK_SCRIM_ALPHA) * t
             }
         })
 
-        overlay.setOnClickListener {
-            behavior.state = BottomSheetBehavior.STATE_HIDDEN
-        }
+        overlay.setOnClickListener { behavior.state = BottomSheetBehavior.STATE_HIDDEN }
 
-        val bsAdapter = BsPlaylistsAdapter { playlist ->
-            viewModel.onPickPlaylist(playlist)
-        }
+        val bsAdapter = BsPlaylistsAdapter { playlist -> viewModel.onPickPlaylist(playlist) }
         binding.bsPlaylistsRecycler.layoutManager = LinearLayoutManager(requireContext())
         binding.bsPlaylistsRecycler.adapter = bsAdapter
 
@@ -193,7 +186,18 @@ class TrackFragment : Fragment() {
 
     override fun onPause() {
         super.onPause()
-        viewModel.onPause()
+        viewModel.onAppPaused()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        val nav = runCatching { findNavController() }.getOrNull()
+        val currentDest = nav?.currentDestination?.id
+        val leftTrackScreen = currentDest != R.id.trackFragment
+
+        if (leftTrackScreen || requireActivity().isFinishing) {
+            viewModel.onScreenClosed()
+        }
     }
 
     override fun onDestroyView() {
